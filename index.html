@@ -6,7 +6,7 @@
     <title>আমাদের জন্য আমরা - রক্তদান প্ল্যাটফর্ম</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK এবং কনফিগারেশন -->
+    <!-- Firebase SDK -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -25,7 +25,6 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
-
       window.auth = auth;
       window.db = db;
       window.collection = collection;
@@ -35,18 +34,9 @@
       window.onAuthStateChanged = onAuthStateChanged;
     </script>
 
+    <!-- Styles (Same as before) -->
     <style>
-        /* --- General/Shared Styles --- */
-        :root {
-            --primary: #e53935;
-            --primary-dark: #c62828;
-            --secondary: #f5f5f5;
-            --text: #333;
-            --text-light: #666;
-            --white: #fff;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
+        :root { --primary: #e53935; --primary-dark: #c62828; --secondary: #f5f5f5; --text: #333; --white: #fff; --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); --transition: all 0.3s ease; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         html { scroll-behavior: smooth; }
         body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
@@ -57,58 +47,43 @@
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary); color: var(--white); }
         .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 40px; color: var(--text); }
-        
-        /* Header Styles */
         #homeView header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; animation: slideDown 0.5s ease; }
         .header-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
         .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none; }
         .logo i { font-size: 1.8rem; }
-        
-        /* Navigation */
         nav ul { display: flex; list-style: none; gap: 25px; }
         nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: var(--transition); position: relative; }
         nav a:hover { color: var(--primary); }
         nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
         nav a:hover::after { width: 100%; }
-        
-        /* Buttons & Menu */
-        .header-actions-right { display: flex; align-items: center; gap: 15px; }
         .auth-buttons { display: flex; gap: 15px; }
-        
+        .header-actions-right { display: flex; align-items: center; gap: 15px; }
         .profile-icon { font-size: 2rem; color: var(--primary); text-decoration: none; transition: var(--transition); }
         .profile-icon:hover { color: var(--primary-dark); }
         .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; }
-        
-        /* Hero Section */
         .hero { background: linear-gradient(135deg, rgba(229, 57, 53, 0.9), rgba(198, 40, 40, 0.9)), url('https://images.unsplash.com/photo-1579154204601-01588f351e67?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'); background-size: cover; background-position: center; color: var(--white); padding: 100px 0; text-align: center; animation: fadeIn 1s ease; }
         .hero-content { max-width: 800px; margin: 0 auto; }
         .hero h1 { font-size: 3rem; margin-bottom: 20px; animation: slideUp 0.8s ease; }
         .hero p { font-size: 1.2rem; margin-bottom: 30px; animation: slideUp 1s ease; }
         .hero-buttons { display: flex; justify-content: center; gap: 20px; animation: slideUp 1.2s ease; }
-        
-        /* Search Box Trigger */
         .search-section-trigger { background-color: var(--white); padding: 40px 0; margin-top: -50px; border-radius: 15px; box-shadow: var(--shadow); position: relative; z-index: 10; animation: slideUp 0.8s ease; cursor: pointer; }
         .search-container-trigger { max-width: 800px; margin: 0 auto; padding: 0 20px; }
         .search-box-trigger { display: flex; background: var(--white); border-radius: 50px; overflow: hidden; box-shadow: var(--shadow); }
         .search-input-trigger { flex: 1; padding: 15px 25px; border: none; outline: none; font-size: 1rem; pointer-events: none; }
         .search-btn-trigger { background: var(--primary); color: var(--white); border: none; padding: 0 30px; transition: var(--transition); pointer-events: none; }
         .search-btn-trigger i { font-size: 1.1rem; }
-        
-        /* Donors Grid */
         .donor-list-section { padding: 60px 0; }
         .donors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .donor-card { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); padding: 25px; transition: var(--transition); }
+        .donor-card { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); padding: 25px; transition: var(--transition); display: flex; flex-direction: column; }
         .donor-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
         .donor-card .donor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .donor-card .blood-group { background: var(--primary); color: var(--white); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
         .donor-card .donor-name { font-size: 1.3rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
-        .donor-card .donor-info { list-style: none; }
+        .donor-card .donor-info { list-style: none; flex-grow: 1; }
         .donor-card .donor-info li { margin-bottom: 12px; color: var(--text-light); display: flex; align-items: center; gap: 10px; }
         .donor-card .donor-info i { color: var(--primary); width: 20px; text-align: center; }
         .copy-icon { margin-left: auto; cursor: pointer; color: var(--text-light); transition: var(--transition); }
         .copy-icon:hover { color: var(--primary); }
-        
-        /* Footer */
         footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; }
         .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
         .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
@@ -119,8 +94,6 @@
         .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
         .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
         .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
-        
-        /* Mobile Menu */
         .nav-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1100; }
         .mobile-nav-window { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%); display: flex; align-items: center; gap: 5px; background: rgba(110, 100, 100, 0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.18); padding: 10px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 1200; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .mobile-nav-window.open { transform: translateX(-50%) translateY(0); }
@@ -129,56 +102,14 @@
         .mobile-nav-window a:hover { background-color: #f0f0f0; transform: translateY(-1px); }
         .close-mobile-nav { cursor: pointer; color: #f0f0f0; font-size: 1.8rem; font-weight: 400; line-height: 1; padding: 0 8px; font-family: Arial, sans-serif; transition: color 0.3s ease; }
         .close-mobile-nav:hover { color: var(--white); }
-        
-        /* Animations */
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes cardFadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-        /* Responsive Styles */
-        @media (max-width: 992px) { 
-            .donors-grid { grid-template-columns: repeat(2, 1fr); } 
-            .hero h1 { font-size: 2.5rem; }
-            /* Hide desktop nav */
-            nav { display: none; } 
-            .mobile-menu { display: block; }
-        }
-
-        @media (max-width: 768px) { 
-            .donors-grid { grid-template-columns: 1fr; } 
-            .hero h1 { font-size: 2rem; } 
-            .hero p { font-size: 1rem; } 
-            .hero-buttons { flex-direction: column; align-items: center; } 
-            .search-box-trigger { flex-direction: column; border-radius: 15px; } 
-            .search-input-trigger { border-radius: 15px 15px 0 0; } 
-            .search-btn-trigger { border-radius: 0 0 15px 15px; padding: 15px; } 
-        }
-
-        /* Mobile Specific Styles for Auth Buttons */
-        @media (max-width: 992px) {
-            .header-actions-right {
-                gap: 10px;
-            }
-            
-            .auth-buttons .btn {
-                padding: 6px 12px; /* ছোট প্যাডিং */
-                font-size: 0.8rem; /* ছোট ফন্ট */
-                border-radius: 20px;
-                white-space: nowrap; /* টেক্সট যেন নিচে না নামে */
-            }
-
-            .logo span {
-                font-size: 1.1rem; /* লোগো টেক্সট একটু ছোট করা যাতে বাটন ধরে */
-            }
-        }
-        
-        /* আরও ছোট ডিভাইসের জন্য */
-        @media (max-width: 400px) {
-            .logo span { display: none; } /* খুব ছোট স্ক্রিনে লোগো টেক্সট লুকানো */
-            .logo i { font-size: 1.5rem; }
-        }
+        @media (max-width: 992px) { .donors-grid { grid-template-columns: repeat(2, 1fr); } .hero h1 { font-size: 2.5rem; } nav { display: none; } .mobile-menu { display: block; } .auth-buttons .btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 20px; white-space: nowrap; } .header-actions-right { gap: 10px; } .logo span { font-size: 1.1rem; } }
+        @media (max-width: 768px) { .donors-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } .hero p { font-size: 1rem; } .hero-buttons { flex-direction: column; align-items: center; } .search-box-trigger { flex-direction: column; border-radius: 15px; } .search-input-trigger { border-radius: 15px 15px 0 0; } .search-btn-trigger { border-radius: 0 0 15px 15px; padding: 15px; } }
+        @media (max-width: 400px) { .logo span { display: none; } .logo i { font-size: 1.5rem; } }
     </style>
 </head>
 <body>
@@ -197,7 +128,6 @@
                         </ul>
                     </nav>
                     <div class="header-actions-right">
-                        <!-- Desktop/Mobile Auth Button -->
                         <div class="auth-buttons">
                             <a href="log_in.html" class="btn btn-primary">লগ ইন</a>
                         </div>
@@ -209,12 +139,11 @@
 
         <div class="nav-overlay" id="navOverlay"></div>
         <div class="mobile-nav-window" id="mobileNavWindow">
-            <ul id="mobileNavList">
+            <ul>
                 <li><a href="#home">হোম</a></li> 
                 <li><a href="#donors">রক্তদাতা</a></li> 
                 <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li> 
                 <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
-                <!-- JS will append Auth link here -->
             </ul>
             <div class="close-mobile-nav" id="closeMobileNav">&times;</div>
         </div>
@@ -271,42 +200,20 @@
             const mobileNavWindow = document.getElementById('mobileNavWindow');
             const closeMobileNavBtn = document.getElementById('closeMobileNav');
             const navOverlay = document.getElementById('navOverlay');
-            const mobileNavLinks = mobileNavWindow.querySelectorAll('a');
-            
-            // Auth Elements
             const authButtonsContainer = document.querySelector('.auth-buttons');
-            const mobileNavList = document.getElementById('mobileNavList');
 
             const locationData = { "barishal": { "name": "বরিশাল" }, "chattogram": { "name": "চট্টগ্রাম" }, "dhaka": { "name": "ঢাকা" }, "khulna": { "name": "খুলনা" }, "mymensingh": { "name": "ময়মনসিংহ" }, "rajshahi": { "name": "রাজশাহী" }, "rangpur": { "name": "রংপুর" }, "sylhet": { "name": "সিলেট" } };
 
-            // Auth State Check & UI Update
             window.onAuthStateChanged(window.auth, (user) => {
-                // Remove any existing mobile auth link to prevent duplicates
-                const existingAuthLink = document.getElementById('mobileAuthLink');
-                if (existingAuthLink) existingAuthLink.remove();
-                
-                const mobileLi = document.createElement('li');
-                mobileLi.id = 'mobileAuthLink';
-
                 if (user) {
-                    // User is signed in: Show Profile Icon
                     authButtonsContainer.innerHTML = `<a href="profile.html" class="profile-icon" title="প্রোফাইল"><i class="fas fa-user-circle"></i></a>`;
                     authButtonsContainer.classList.add('logged-in');
-                    
-                    // Mobile: Profile Link
-                    mobileLi.innerHTML = `<a href="profile.html" style="color: var(--primary); font-weight: 700;">প্রোফাইল</a>`;
                 } else {
-                    // User is signed out: Show Login Button (Small on mobile)
                     authButtonsContainer.innerHTML = `<a href="log_in.html" class="btn btn-primary">লগ ইন</a>`;
                     authButtonsContainer.classList.remove('logged-in');
-                    
-                     // Mobile: Login Link
-                     mobileLi.innerHTML = `<a href="log_in.html" style="color: var(--primary); font-weight: 700;">লগ ইন / সাইন আপ</a>`;
                 }
-                mobileNavList.appendChild(mobileLi);
             });
 
-            // Smooth Scrolling
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -317,21 +224,17 @@
                 });
             });
 
-            // Mobile Menu
             const openMobileMenu = () => { navOverlay.style.display = 'block'; mobileNavWindow.classList.add('open'); };
             const closeMobileMenu = () => { navOverlay.style.display = 'none'; mobileNavWindow.classList.remove('open'); };
             mobileMenuIcon.addEventListener('click', openMobileMenu);
             closeMobileNavBtn.addEventListener('click', closeMobileMenu);
             navOverlay.addEventListener('click', closeMobileMenu);
-            mobileNavLinks.forEach(link => { link.addEventListener('click', closeMobileMenu); });
 
-            // Load Donors from Firebase
             async function loadAndSortDonors() {
                 const mainDonorGrid = document.getElementById('mainDonorsGrid');
                 mainDonorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">লোড হচ্ছে...</p>';
 
                 try {
-                    // শুধুমাত্র যারা প্রোফাইল পাবলিশ করেছে তাদের লোড করা
                     const q = window.query(window.collection(window.db, "users"), window.where("isPublished", "==", true));
                     const querySnapshot = await window.getDocs(q);
 
@@ -346,10 +249,9 @@
 
                     querySnapshot.forEach((doc) => {
                         const data = doc.data();
-                        // Location Name Formatting
+                        const docId = doc.id;
                         const divName = locationData[data.division]?.name || data.division || '';
                         const locationText = (data.upazila && data.district) ? `${data.upazila}, ${data.district}` : (divName || 'অবস্থান অজ্ঞাত');
-                        
                         const lastDonationDate = data.neverDonated ? 'কখনও দেননি' : (data.lastDonation ? new Date(data.lastDonation).toLocaleDateString('bn-BD') : '-');
 
                         const card = document.createElement('div');
@@ -366,11 +268,11 @@
                                 <li><i class="fas fa-calendar-alt"></i> শেষ রক্তদান: ${lastDonationDate}</li>
                                 <li><i class="fas fa-phone"></i> মোবাইল: <span class="phone-number">${data.mobile || ''}</span> <i class="far fa-copy copy-icon"></i></li>
                             </ul>
+                            <a href="donor_details.html?id=${docId}" class="btn btn-outline" style="width: 100%; margin-top: 10px;">ডিটেলস</a>
                         `;
                         donorCards.push(card);
                     });
 
-                    // Sort by blood group priority
                     const bloodGroupPriority = ['AB-', 'B-', 'A-', 'O-', 'AB+', 'B+', 'A+', 'O+'];
                     donorCards.sort((cardA, cardB) => {
                         const bgA = cardA.getAttribute('data-blood-group');
@@ -380,8 +282,6 @@
 
                     donorCards.forEach(card => {
                         mainDonorGrid.appendChild(card);
-                        
-                        // Copy functionality
                         const copyIcon = card.querySelector('.copy-icon');
                         if (copyIcon) {
                             copyIcon.addEventListener('click', () => {
@@ -402,7 +302,6 @@
                 }
             }
 
-            // Link search trigger
             const searchSectionTrigger = document.getElementById('searchSectionTrigger');
             if(searchSectionTrigger) {
                 searchSectionTrigger.addEventListener('click', () => {
