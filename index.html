@@ -86,7 +86,7 @@
         .hero p { font-size: 1.2rem; margin-bottom: 30px; animation: slideUp 1s ease; }
         .hero-buttons { display: flex; justify-content: center; gap: 20px; animation: slideUp 1.2s ease; }
         
-        /* Search Box */
+        /* Search Box Trigger */
         .search-section-trigger { background-color: var(--white); padding: 40px 0; margin-top: -50px; border-radius: 15px; box-shadow: var(--shadow); position: relative; z-index: 10; animation: slideUp 0.8s ease; cursor: pointer; }
         .search-container-trigger { max-width: 800px; margin: 0 auto; padding: 0 20px; }
         .search-box-trigger { display: flex; background: var(--white); border-radius: 50px; overflow: hidden; box-shadow: var(--shadow); }
@@ -141,7 +141,6 @@
         @media (max-width: 992px) { 
             .donors-grid { grid-template-columns: repeat(2, 1fr); } 
             .hero h1 { font-size: 2.5rem; }
-            
             /* Hide desktop nav */
             nav { display: none; } 
             .mobile-menu { display: block; }
@@ -215,6 +214,7 @@
                 <li><a href="#donors">রক্তদাতা</a></li> 
                 <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li> 
                 <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
+                <!-- JS will append Auth link here -->
             </ul>
             <div class="close-mobile-nav" id="closeMobileNav">&times;</div>
         </div>
@@ -257,7 +257,7 @@
                 <div class="footer-content">
                     <div class="footer-column"><h3>আমাদের জন্য আমরা</h3><p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p><div class="social-links"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a></div></div>
                     <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="#home">হোম</a></li><li><a href="#donors">রক্তদাতা</a></li><li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li><li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li></ul></div>
-                    <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="rules.html">রক্তদানের নিয়ম</a></li></ul></div>
+                    <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="donation_rules.html">রক্তদানের নিয়ম</a></li></ul></div>
                     <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> ঢাকা, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1XXX-XXXXXX</li><li><i class="fas fa-envelope"></i> info@bloodlink.com</li></ul></div>
                 </div>
                 <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
@@ -273,22 +273,37 @@
             const navOverlay = document.getElementById('navOverlay');
             const mobileNavLinks = mobileNavWindow.querySelectorAll('a');
             
-            // ডেস্কটপ হেডার বাটন কন্টেইনার
+            // Auth Elements
             const authButtonsContainer = document.querySelector('.auth-buttons');
+            const mobileNavList = document.getElementById('mobileNavList');
 
             const locationData = { "barishal": { "name": "বরিশাল" }, "chattogram": { "name": "চট্টগ্রাম" }, "dhaka": { "name": "ঢাকা" }, "khulna": { "name": "খুলনা" }, "mymensingh": { "name": "ময়মনসিংহ" }, "rajshahi": { "name": "রাজশাহী" }, "rangpur": { "name": "রংপুর" }, "sylhet": { "name": "সিলেট" } };
 
             // Auth State Check & UI Update
             window.onAuthStateChanged(window.auth, (user) => {
+                // Remove any existing mobile auth link to prevent duplicates
+                const existingAuthLink = document.getElementById('mobileAuthLink');
+                if (existingAuthLink) existingAuthLink.remove();
+                
+                const mobileLi = document.createElement('li');
+                mobileLi.id = 'mobileAuthLink';
+
                 if (user) {
                     // User is signed in: Show Profile Icon
                     authButtonsContainer.innerHTML = `<a href="profile.html" class="profile-icon" title="প্রোফাইল"><i class="fas fa-user-circle"></i></a>`;
                     authButtonsContainer.classList.add('logged-in');
+                    
+                    // Mobile: Profile Link
+                    mobileLi.innerHTML = `<a href="profile.html" style="color: var(--primary); font-weight: 700;">প্রোফাইল</a>`;
                 } else {
                     // User is signed out: Show Login Button (Small on mobile)
                     authButtonsContainer.innerHTML = `<a href="log_in.html" class="btn btn-primary">লগ ইন</a>`;
                     authButtonsContainer.classList.remove('logged-in');
+                    
+                     // Mobile: Login Link
+                     mobileLi.innerHTML = `<a href="log_in.html" style="color: var(--primary); font-weight: 700;">লগ ইন / সাইন আপ</a>`;
                 }
+                mobileNavList.appendChild(mobileLi);
             });
 
             // Smooth Scrolling
