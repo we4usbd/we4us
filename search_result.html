@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অনুসন্ধানের ফলাফল - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // গ্লোবাল ভেরিয়েবল
+      window.db = db;
+      window.collection = collection;
+      window.query = query;
+      window.where = where;
+      window.getDocs = getDocs;
+    </script>
+
+    <style>
+        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        body {
+            background-color: var(--secondary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            color: var(--text);
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .btn {
+            padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition);
+            border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .logo {
+            display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none;
+        }
+        .logo i { font-size: 1.8rem; }
+        .results-page-view { display: block; }
+        .results-page-view .header {
+            background-color: var(--white); padding: 15px 0; box-shadow: var(--shadow);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .results-section { padding: 40px 0; }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 40px; }
+        .search-query {
+            text-align: center; font-size: 1.2rem; margin-bottom: 40px; color: var(--text-light);
+            background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: var(--shadow);
+        }
+        .donors-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px;
+        }
+        .donor-card {
+            background: var(--white); border-radius: 10px; box-shadow: var(--shadow); padding: 25px; transition: var(--transition);
+            opacity: 0; animation: cardFadeIn 0.6s ease-out forwards;
+        }
+        @keyframes cardFadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .donor-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .donor-card .donor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .donor-card .blood-group { background: var(--primary); color: var(--white); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
+        .donor-card .donor-name { font-size: 1.3rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        .donor-card .donor-info { list-style: none; padding: 0; }
+        .donor-card .donor-info li { margin-bottom: 12px; color: var(--text-light); display: flex; align-items: center; gap: 10px; }
+        .donor-card .donor-info i { color: var(--primary); width: 20px; text-align: center; }
+        .copy-icon { margin-left: auto; cursor: pointer; color: var(--text-light); transition: var(--transition); }
+        .copy-icon:hover { color: var(--primary); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: var(--white); }
+        .no-results {
+            text-align: center; font-size: 1.5rem; color: var(--text-light); padding: 50px;
+            background: var(--white); border-radius: 10px; box-shadow: var(--shadow);
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Results Page View -->
+    <div class="results-page-view" id="resultsPageView">
+        <header class="header">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="index.html" class="logo"><i class="fas fa-tint"></i><span>আমাদের জন্য আমরা</span></a>
+                <a href="search_bar.html" id="newSearchBtn" class="btn btn-primary"><i class="fas fa-search"></i> নতুন অনুসন্ধান</a>
+            </div>
+        </header>
+        <main>
+            <section class="results-section">
+                <div class="container">
+                    <h1 class="section-title">অনুসন্ধানের ফলাফল</h1>
+                    <p class="search-query" id="searchQueryText">লোড হচ্ছে...</p>
+                    <div class="donors-grid" id="resultsDonorsGrid">
+                        <!-- Search results will be injected here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // লোকেশন ডেটা (বাংলা নাম দেখানোর জন্য)
+            const locationData = { "barishal": { "name": "বরিশাল", "districts": { "barguna": { "name": "বরগুনা" }, "barishal": { "name": "বরিশাল" }, "bhola": { "name": "ভোলা" }, "jhalokati": { "name": "ঝালকাঠি" }, "patuakhali": { "name": "পটুয়াখালী" }, "pirojpur": { "name": "পিরোজপুর" } } }, "chattogram": { "name": "চট্টগ্রাম", "districts": { "bandarban": { "name": "বান্দরবান" }, "brahmanbaria": { "name": "ব্রাহ্মণবাড়িয়া" }, "chandpur": { "name": "চাঁদপুর" }, "chattogram": { "name": "চট্টগ্রাম" }, "cumilla": { "name": "কুমিল্লা" }, "coxs_bazar": { "name": "কক্সবাজার" }, "feni": { "name": "ফেনী" }, "khagrachhari": { "name": "খাগড়াছড়ি" }, "lakshmipur": { "name": "লক্ষ্মীপুর" }, "noakhali": { "name": "নোয়াখালী" }, "rangamati": { "name": "রাঙ্গামাটি" } } }, "dhaka": { "name": "ঢাকা", "districts": { "dhaka": { "name": "ঢাকা" }, "faridpur": { "name": "ফরিদপুর" }, "gazipur": { "name": "গাজীপুর" }, "gopalganj": { "name": "গোপালগঞ্জ" }, "kishoreganj": { "name": "কিশোরগঞ্জ" }, "madaripur": { "name": "মাদারীপুর" }, "manikganj": { "name": "মানিকগঞ্জ" }, "munshiganj": { "name": "মুন্সিগঞ্জ" }, "narayanganj": { "name": "নারায়ণগঞ্জ" }, "narsingdi": { "name": "নরসিংদী" }, "rajbari": { "name": "রাজবাড়ী" }, "shariatpur": { "name": "শরীয়তপুর" }, "tangail": { "name": "টাঙ্গাইল" } } }, "khulna": { "name": "খুলনা", "districts": { "bagerhat": { "name": "বাগেরহাট" }, "chuadanga": { "name": "চুয়াডাঙ্গা" }, "jashore": { "name": "যশোর" }, "jhenaidah": { "name": "ঝিনাইদহ" }, "khulna": { "name": "খুলনা" }, "kushtia": { "name": "কুষ্টিয়া" }, "magura": { "name": "মাগুরা" }, "meherpur": { "name": "মেহেরপুর" }, "narail": { "name": "নড়াইল" }, "satkhira": { "name": "সাতক্ষীরা" } } }, "mymensingh": { "name": "ময়মনসিংহ", "districts": { "jamalpur": { "name": "জামালপুর" }, "mymensingh": { "name": "ময়মনসিংহ" }, "netrokona": { "name": "নেত্রকোণা" }, "sherpur": { "name": "শেরপুর" } } }, "rajshahi": { "name": "রাজশাহী", "districts": { "bogura": { "name": "বগুড়া" }, "chapainawabganj": { "name": "চাঁপাইনবাবগঞ্জ" }, "joypurhat": { "name": "জয়পুরহাট" }, "naogaon": { "name": "নওগাঁ" }, "natore": { "name": "নাটোর" }, "pabna": { "name": "পাবনা" }, "rajshahi": { "name": "রাজশাহী" }, "sirajganj": { "name": "সিরাজগঞ্জ" } } }, "rangpur": { "name": "রংপুর", "districts": { "dinajpur": { "name": "দিনাজপুর" }, "gaibandha": { "name": "গাইবান্ধা" }, "kurigram": { "name": "কুড়িগ্রাম" }, "lalmonirhat": { "name": "লালমনিরহাট" }, "nilphamari": { "name": "নীলফামারী" }, "panchagarh": { "name": "পঞ্চগড়" }, "rangpur": { "name": "রংপুর" }, "thakurgaon": { "name": "ঠাকুরগাঁও" } } }, "sylhet": { "name": "সিলেট", "districts": { "habiganj": { "name": "হবিগঞ্জ" }, "moulvibazar": { "name": "মৌলভীবাজার" }, "sunamganj": { "name": "সুনামগঞ্জ" }, "sylhet": { "name": "সিলেট" } } } };
+
+            const resultsDonorsGrid = document.getElementById('resultsDonorsGrid');
+            const searchQueryText = document.getElementById('searchQueryText');
+            
+            // URL থেকে প্যারামিটার পড়া
+            const params = new URLSearchParams(window.location.search);
+            const divisionKey = params.get('division');
+            const districtKey = params.get('district');
+            const upazila = params.get('upazila'); // বাংলা নাম (কারণ ফর্ম থেকে বাংলা ভ্যালু পাঠানো হয়েছে)
+            const bloodGroup = params.get('bloodGroup');
+
+            // ডিসপ্লের জন্য বাংলা নাম বের করা
+            const divisionName = locationData[divisionKey]?.name || divisionKey;
+            const districtName = locationData[divisionKey]?.districts[districtKey]?.name || districtKey;
+
+            searchQueryText.innerHTML = `অনুসন্ধান: বিভাগ- <strong>${divisionName}</strong>, জেলা- <strong>${districtName}</strong>, উপজেলা- <strong>${upazila}</strong>, রক্তের গ্রুপ- <strong style="color: var(--primary);">${bloodGroup}</strong>`;
+
+            async function fetchAndDisplayResults() {
+                if (!divisionKey || !districtKey || !bloodGroup) {
+                    resultsDonorsGrid.innerHTML = `<div class="no-results">সঠিক তথ্য পাওয়া যায়নি। দয়া করে আবার অনুসন্ধান করুন।</div>`;
+                    return;
+                }
+
+                resultsDonorsGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">খোঁজা হচ্ছে...</p>';
+
+                try {
+                    // Firestore Query
+                    // নোট: ফায়ারবেজে একাধিক 'where' ক্লজ ব্যবহারের জন্য ইনডেক্স তৈরি করতে হতে পারে।
+                    // যদি কনসোলে এরর আসে, লিংকে ক্লিক করে ইনডেক্স তৈরি করুন।
+                    const q = window.query(
+                        window.collection(window.db, "users"),
+                        window.where("isPublished", "==", true),
+                        window.where("bloodGroup", "==", bloodGroup),
+                        window.where("division", "==", divisionKey),
+                        window.where("district", "==", districtKey),
+                        window.where("upazila", "==", upazila) // Upazila is stored as text in DB
+                    );
+
+                    const querySnapshot = await window.getDocs(q);
+
+                    resultsDonorsGrid.innerHTML = ''; // Clear loading text
+
+                    if (querySnapshot.empty) {
+                        resultsDonorsGrid.innerHTML = `<div class="no-results">দুঃখিত, "${districtName}" জেলায় "${bloodGroup}" গ্রুপের কোনো রক্তদাতা পাওয়া যায়নি।</div>`;
+                    } else {
+                        querySnapshot.forEach((doc) => {
+                            const donor = doc.data();
+                            const html = createDonorCardHTML(donor);
+                            resultsDonorsGrid.innerHTML += html;
+                        });
+                        
+                        // কপি বাটন ইভেন্ট লিসেনার যোগ করা
+                        document.querySelectorAll('.copy-icon').forEach(copyIcon => {
+                            copyIcon.addEventListener('click', () => {
+                                const phoneNumber = copyIcon.previousElementSibling.innerText;
+                                navigator.clipboard.writeText(phoneNumber)
+                                    .then(() => { alert(`'${phoneNumber}' নম্বরটি কপি করা হয়েছে।`); })
+                                    .catch(err => { alert('নম্বরটি কপি করা যায়নি।'); });
+                            });
+                        });
+                    }
+
+                } catch (error) {
+                    console.error("Error fetching donors:", error);
+                    if(error.message.includes("indexes")) {
+                        console.log("Please create an index in Firestore console using the link in the error above.");
+                        alert("সিস্টেম কনফিগারেশন এরর: দয়া করে অ্যাডমিনের সাথে যোগাযোগ করুন (Index Error)");
+                    }
+                    resultsDonorsGrid.innerHTML = `<div class="no-results">সার্ভারে সমস্যা হয়েছে। দয়া করে পরে আবার চেষ্টা করুন।</div>`;
+                }
+            }
+
+            function createDonorCardHTML(donor) {
+                const genderIcon = donor.gender === 'male' ? '<i class="fas fa-mars" style="color: #6495ED;"></i>' : 
+                                  (donor.gender === 'female' ? '<i class="fas fa-venus" style="color: #FF69B4;"></i>' : '<i class="fas fa-genderless"></i>');
+                
+                // Last donation date formatting
+                let lastDonationText = '-';
+                if(donor.neverDonated) {
+                    lastDonationText = 'কখনও দেননি';
+                } else if (donor.lastDonation) {
+                    lastDonationText = new Date(donor.lastDonation).toLocaleDateString('bn-BD');
+                }
+
+                // Location text
+                const donorDiv = locationData[donor.division]?.name || donor.division;
+                const donorDist = locationData[donor.division]?.districts[donor.district]?.name || donor.district;
+                const locationStr = `${donor.upazila}, ${donorDist}`;
+
+                return `
+                    <div class="donor-card">
+                        <div class="donor-header">
+                            <div class="donor-name">${donor.name} ${genderIcon}</div>
+                            <div class="blood-group">${donor.bloodGroup}</div>
+                        </div>
+                        <ul class="donor-info">
+                            <li><i class="far fa-calendar-alt"></i> শেষ রক্তদান: ${lastDonationText}</li>
+                            <li><i class="fas fa-phone"></i> <span class="phone-number">${donor.mobile}</span> <i class="far fa-copy copy-icon" title="নম্বর কপি করুন"></i></li>
+                            <li><i class="fas fa-map-marker-alt"></i> ${locationStr}</li>
+                        </ul>
+                        <button class="btn btn-outline" style="width: 100%; margin-top: 20px;" onclick="alert('বিস্তারিত ফিচারটি শীঘ্রই আসছে!')">বিস্তারিত দেখুন</button>
+                    </div>
+                `;
+            }
+
+            // Execute search
+            fetchAndDisplayResults();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>প্রোফাইল এডিট - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // গ্লোবাল ভেরিয়েবল
+      window.auth = auth;
+      window.db = db;
+      window.doc = doc;
+      window.getDoc = getDoc;
+      window.updateDoc = updateDoc;
+      window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+
+    <style>
+        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; }
+        .logo i { font-size: 1.8rem; }
+        nav ul { display: flex; list-style: none; gap: 25px; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: var(--transition); position: relative; }
+        nav a:hover { color: var(--primary); }
+        nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
+        nav a:hover::after { width: 100%; }
+        .auth-buttons { display: flex; gap: 15px; }
+        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; }
+        .page-section { transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; opacity: 0; }
+        #profileEditSection { transform: scale(0.98); }
+        .page-section.visible { opacity: 1; transform: scale(1) translateY(0); }
+        .header-button-group { opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .header-button-group.visible { opacity: 1; }
+        .profile-edit-section { padding: 60px 0; }
+        .profile-edit-container { background-color: var(--white); border-radius: 15px; box-shadow: var(--shadow); padding: 40px; max-width: 800px; margin: 0 auto; position: relative; overflow: hidden; }
+        .profile-edit-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); }
+        .profile-edit-title { text-align: center; margin-bottom: 30px; color: var(--text); font-size: 1.8rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .profile-edit-title i { color: var(--primary); }
+        .profile-edit-form { display: flex; flex-direction: column; gap: 20px; }
+        .profile-edit-form .form-row { display: flex; gap: 20px; }
+        .form-group { flex: 1; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        .form-group label i { color: var(--primary); width: 20px; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; transition: var(--transition); background-color: #f9f9f9; }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.2); background-color: var(--white); }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .checkbox-group input[type="checkbox"], .checkbox-group input[type="radio"] { width: 18px; height: 18px; }
+        .checkbox-group label { margin-bottom: 0; }
+        .terms-section { background-color: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .terms-section h3 { margin-bottom: 15px; color: var(--text); }
+        .terms-list { list-style: none; padding: 0; }
+        .terms-list li { margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px; }
+        .terms-list input[type="checkbox"] { margin-top: 3px; }
+        .submit-btn { background: var(--primary); color: var(--white); border: none; padding: 15px; border-radius: 10px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: var(--transition); margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+        .submit-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(229, 57, 53, 0.3); }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
+        .footer-column h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 2px; background: var(--primary); }
+        .footer-links { list-style: none; padding: 0; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { color: #ddd; text-decoration: none; transition: var(--transition); }
+        .footer-links a:hover { color: var(--primary); padding-left: 5px; }
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
+        .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
+        .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
+        .nav-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1100; }
+        .mobile-nav-window { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%); display: flex; align-items: center; gap: 5px; background: rgba(110, 100, 100, 0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.18); padding: 10px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 1200; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .mobile-nav-window.open { transform: translateX(-50%) translateY(0); }
+        .mobile-nav-window ul { list-style: none; display: flex; flex-direction: row; gap: 8px; margin: 0; padding: 0; }
+        .mobile-nav-window a { display: block; background: var(--white); color: var(--text); padding: 8px 16px; border-radius: 30px; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap; transition: var(--transition); }
+        .mobile-nav-window a:hover { background-color: #f0f0f0; transform: translateY(-1px); }
+        .close-mobile-nav { cursor: pointer; color: #f0f0f0; font-size: 1.8rem; font-weight: 400; line-height: 1; padding: 0 8px; font-family: Arial, sans-serif; transition: color 0.3s ease; }
+        .close-mobile-nav:hover { color: var(--white); }
+        @media (max-width: 768px) {
+            nav { display: none; }
+            .mobile-menu { display: block; }
+            .profile-edit-form .form-row { flex-direction: column; gap: 0; }
+            .profile-edit-container { padding: 25px; }
+        }
+        @media (max-width: 576px) {
+            .header-content { flex-wrap: wrap; }
+            .auth-buttons { margin-top: 15px; width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo"> 
+                    <i class="fas fa-tint"></i> 
+                    <span>আমাদের জন্য আমরা</span> 
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">হোম</a></li>
+                        <li><a href="#">রক্তদাতা</a></li>
+                        <li><a href="#">জরুরি যোগাযোগ</a></li>
+                        <li><a href="#">ইমারজেন্সি ব্লাড</a></li>
+                    </ul>
+                </nav>
+                <div id="edit-mode-buttons" class="auth-buttons header-button-group"> 
+                    <button class="btn btn-primary" id="profileBtn">প্রোফাইলে ফিরে যান</button> 
+                </div>
+                <div class="mobile-menu"> 
+                    <i class="fas fa-bars"></i> 
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div class="nav-overlay" id="navOverlay"></div>
+    <div class="mobile-nav-window" id="mobileNavWindow">
+        <ul>
+            <li><a href="index.html">হোম</a></li> 
+            <li><a href="#">রক্তদাতা</a></li> 
+            <li><a href="#">জরুরি যোগাযোগ</a></li> 
+            <li><a href="#">ইমারজেন্সি ব্লাড</a></li>
+        </ul>
+        <div class="close-mobile-nav" id="closeMobileNav">&times;</div>
+    </div>
+
+    <!-- Profile Edit Section -->
+    <section id="profileEditSection" class="page-section profile-edit-section">
+        <div class="container">
+            <div class="profile-edit-container">
+                <h1 class="profile-edit-title"><i class="fas fa-user-edit"></i> প্রোফাইল এডিট</h1>
+                <form class="profile-edit-form" id="profileEditForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name"><i class="fas fa-user"></i> নাম</label>
+                            <input type="text" id="name" class="form-control" placeholder="আপনার পুরো নাম" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="birthDate"><i class="fas fa-birthday-cake"></i> জন্ম তারিখ</label>
+                            <input type="date" id="birthDate" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age"><i class="fas fa-calendar-alt"></i> বয়স (১৮ - ৬০)</label>
+                            <input type="number" id="age" class="form-control" placeholder="আপনার বয়স" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile" id="mobileLabel"><i class="fas fa-phone"></i> মোবাইল নম্বর</label>
+                            <input type="tel" id="mobile" class="form-control" placeholder="আপনার মোবাইল নম্বর" required>
+                            <p id="privacyMessage" style="color: #666; font-size: 0.85rem; margin-top: 8px; display: none;">
+                                আপনার প্রাইভেসি রক্ষার্থে <b>ইমেল</b> ব্যবহার করতে পারেন। কারণ আপনার <b>মোবাইল নম্বর বা ইমেল</b> সকলে দেখতে পারবে। <br><b>বিঃদ্রঃ আপনার ইমেলটি সচল থাকা প্রয়োজন। কারণ, আপনার সাথে যোগাযোগের একমাত্র পথ এটি।</b>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gender"><i class="fas fa-venus-mars"></i> জেন্ডার</label>
+                            <select id="gender" class="form-control" required>
+                                <option value="" disabled selected>জেন্ডার নির্বাচন করুন</option>
+                                <option value="male">পুরুষ</option>
+                                <option value="female">মহিলা</option>
+                                <option value="other">অন্যান্য</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="weight"><i class="fas fa-weight"></i> ওজন (KG)</label>
+                            <input type="number" id="weight" class="form-control" placeholder="আপনার ওজন" min="50" required>
+                           <p>ন্যূনতম ৫০ কেজি হতে হবে</p>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bloodGroup"><i class="fas fa-tint"></i> রক্তের গ্রুপ</label>
+                            <select id="bloodGroup" class="form-control" required>
+                                <option value="" disabled selected>রক্তের গ্রুপ নির্বাচন করুন</option>
+                                <option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option>
+                                <option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastDonation"><i class="fas fa-heartbeat"></i> শেষ রক্তদানের তারিখ</label>
+                            <input type="date" id="lastDonation" class="form-control">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="neverDonated"><label for="neverDonated">আমি এর পূর্বে রক্ত দিইনি</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="division"><i class="fas fa-map-marker-alt"></i> বিভাগ</label>
+                        <select id="division" class="form-control" required>
+                            <option value="" disabled selected>বিভাগ নির্বাচন করুন</option>
+                            <option value="barishal">বরিশাল</option><option value="chattogram">চট্টগ্রাম</option><option value="dhaka">ঢাকা</option>
+                            <option value="khulna">খুলনা</option><option value="mymensingh">ময়মনসিংহ</option><option value="rajshahi">রাজশাহী</option>
+                            <option value="rangpur">রংপুর</option><option value="sylhet">সিলেট</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="district"><i class="fas fa-map-marked-alt"></i> জেলা</label>
+                            <select id="district" class="form-control" disabled required><option value="" disabled selected>প্রথমে বিভাগ নির্বাচন করুন</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="upazila"><i class="fas fa-location-arrow"></i> উপজেলা</label>
+                            <select id="upazila" class="form-control" disabled required><option value="" disabled selected>প্রথমে জেলা নির্বাচন করুন</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>আপনি কি রক্ত দানে ইচ্ছুক?</label>
+                        <div class="checkbox-group">
+                            <input type="radio" id="willingYes" name="willingness" value="yes" required><label for="willingYes">হ্যাঁ</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="radio" id="willingNo" name="willingness" value="no" required><label for="willingNo">না</label>
+                        </div>
+                    </div>
+                    <div class="terms-section">
+                        <h3>শর্তাবলী</h3>
+                        <ul class="terms-list">
+                            <li><input type="checkbox" id="term1" required><label for="term1">আমি মাদক আসক্ত নই।</label></li>
+                            <li><input type="checkbox" id="term2" required><label for="term2">আমার রক্তবাহিত কোন রোগ, হৃদরোগ, ডায়াবেটিস ইত্যাদি নেই।</label></li>
+                            <li><input type="checkbox" id="term3" required><label for="term3">আমি রক্তদানের জন্য কোন অনুদান আশা করি না।</label></li>
+                            <li><input type="checkbox" id="term4" required><label for="term4">যেকোন সময় রক্ত দানের জন্য প্রস্তুত *সকল কন্ডিশন মেনে*</label></li>
+                        </ul>
+                    </div>
+                    <button type="submit" class="submit-btn" id="saveBtn" disabled><i class="fas fa-save"></i> সেভ</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+         <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>আমাদের জন্য আমরা</h3>
+                    <p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>লিংকস</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">হোম</a></li><li><a href="#">রক্তদাতা</a></li>
+                        <li><a href="#">জরুরি যোগাযোগ</a></li><li><a href="#">ইমারজেন্সি ব্লাড</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>সহায়তা</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">সাপোর্ট</a></li><li><a href="#">জরুরী যোগাযোগ</a></li><li><a href="#">রক্তদানের নিয়ম</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>যোগাযোগ</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt"></i> নাটোর, বাংলাদেশ</li>
+                        <li><i class="fas fa-phone"></i> +880 1851956615</li>
+                        <li><i class="fas fa-envelope"></i> info@nur.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const editModeButtons = document.getElementById('edit-mode-buttons');
+            const profileEditSection = document.getElementById('profileEditSection');
+            const profileBtn = document.getElementById('profileBtn');
+
+            // --- Profile Form Elements ---
+            const profileEditForm = document.getElementById('profileEditForm');
+            const nameInput = document.getElementById('name');
+            const birthDateInput = document.getElementById('birthDate');
+            const ageInput = document.getElementById('age');
+            const mobileInput = document.getElementById('mobile');
+            const genderSelect = document.getElementById('gender');
+            const weightInput = document.getElementById('weight');
+            const bloodGroupSelect = document.getElementById('bloodGroup');
+            const lastDonationInput = document.getElementById('lastDonation');
+            const neverDonatedCheckbox = document.getElementById('neverDonated');
+            const divisionSelect = document.getElementById('division');
+            const districtSelect = document.getElementById('district');
+            const upazilaSelect = document.getElementById('upazila');
+            const saveBtn = document.getElementById('saveBtn');
+            const termsCheckboxes = document.querySelectorAll('.terms-list input[type="checkbox"]');
+            const mobileLabel = document.getElementById('mobileLabel');
+            const privacyMessage = document.getElementById('privacyMessage');
+            
+            // --- Mobile Nav ---
+            const mobileMenuIcon = document.querySelector('.mobile-menu');
+            const mobileNavWindow = document.getElementById('mobileNavWindow');
+            const closeMobileNavBtn = document.getElementById('closeMobileNav');
+            const navOverlay = document.getElementById('navOverlay');
+
+            // --- DATA ---
+            const locationData = { "barishal": { "districts": { "barguna": { "name": "বরগুনা", "upazilas": ["আমতলী", "বরগুনা সদর", "বামনা", "বেতাগী", "পাথরঘাটা", "তালতলী"] }, "barishal": { "name": "বরিশাল", "upazilas": ["আগৈলঝাড়া", "বাবুগঞ্জ", "বাকেরগঞ্জ", "বানারীপাড়া", "গৌরনদী", "হিজলা", "বরিশাল সদর", "মেহেন্দিগঞ্জ", "মুলাদী", "উজিরপুর"] }, "bhola": { "name": "ভোলা", "upazilas": ["ভোলা সদর", "বোরহানউদ্দিন", "চরফ্যাশন", "দৌলতখান", "লালমোহন", "মনপুরা", "তজুমদ্দিন"] }, "jhalokati": { "name": "ঝালকাঠি", "upazilas": ["ঝালকাঠি সদর", "কাঁঠালিয়া", "নলছিটি", "রাজাপুর"] }, "patuakhali": { "name": "পটুয়াখালী", "upazilas": ["বাউফল", "দশমিনা", "গলাচিপা", "কলাপাড়া", "মির্জাগঞ্জ", "পটুয়াখালী সদর", "দুমকি", "রাঙ্গাবালী"] }, "pirojpur": { "name": "পিরোজপুর", "upazilas": ["ভান্ডারিয়া", "কাউখালী", "মঠবাড়িয়া", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "জিয়ানগর"] } } }, "chattogram": { "districts": { "bandarban": { "name": "বান্দরবান", "upazilas": ["আলীকদম", "বান্দরবান সদর", "লামা", "নাইক্ষ্যংছড়ি", "রোয়াংছড়ি", "রুমা", "থানচি"] }, "brahmanbaria": { "name": "ব্রাহ্মণবাড়িয়া", "upazilas": ["আখাউড়া", "বাঞ্ছারামপুর", "ব্রাহ্মণবাড়িয়া সদর", "কসবা", "নবীনগর", "নাসিরনগর", "সরাইল", "আশুগঞ্জ", "বিজয়নগর"] }, "chandpur": { "name": "চাঁদপুর", "upazilas": ["চাঁদপুর সদর", "ফরিদগঞ্জ", "হাইমচর", "হাজীগঞ্জ", "কচুয়া", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি"] }, "chattogram": { "name": "চট্টগ্রাম", "upazilas": ["আনোয়ারা", "বাঁশখালী", "বোয়ালখালী", "চন্দনাইশ", "ফটিকছড়ি", "হাটহাজারী", "কর্ণফুলী", "লোহাগাড়া", "মীরসরাই", "পটিয়া", "রাঙ্গুনিয়া", "রাউজান", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুণ্ড"] }, "cumilla": { "name": "কুমিল্লা", "upazilas": ["বরুড়া", "ব্রাহ্মণপাড়া", "বুড়িচং", "চান্দিনা", "চৌদ্দগ্রাম", "দাউদকান্দি", "দেবিদ্বার", "হোমনা", "লাকসাম", "মনোহরগঞ্জ", "মেঘনা", "মুরাদনগর", "নাঙ্গলকোট", "কুমিল্লা সদর", "সদর দক্ষিণ", "তিতাস"] }, "coxs_bazar": { "name": "কক্সবাজার", "upazilas": ["চকরিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "মহেশখালী", "রামু", "টেকনাফ", "উখিয়া", "পেকুয়া", "ঈদগাঁও"] }, "feni": { "name": "ফেনী", "upazilas": ["ছাগলনাইয়া", "দাগনভূঞা", "ফেনী সদর", "পরশুরাম", "সোনাগাজী", "ফুলগাজী"] }, "khagrachhari": { "name": "খাগড়াছড়ি", "upazilas": ["দীঘিনালা", "খাগড়াছড়ি সদর", "লক্ষ্মীছড়ি", "মহালছড়ি", "মানিকছড়ি", "মাটিরাঙ্গা", "পানছড়ি", "রামগড়"] }, "lakshmipur": { "name": "লক্ষ্মীপুর", "upazilas": ["লক্ষ্মীপুর সদর", "কমলনগর", "রায়পুর", "রামগঞ্জ", "রামগতি"] }, "noakhali": { "name": "নোয়াখালী", "upazilas": ["বেগমগঞ্জ", "চাটখিল", "কোম্পানীগঞ্জ", "হাতিয়া", "সেনবাগ", "সুবর্ণচর", "নোয়াখালী সদর", "কবিরহাট"] }, "rangamati": { "name": "রাঙ্গামাটি", "upazilas": ["বাঘাইছড়ি", "বরকল", "কাপ্তাই", "জুড়াছড়ি", "লংগদু", "নানিয়ারচর", "রাজস্থলী", "রাঙ্গামাটি সদর", "কাউখালী", "বিলাইছড়ি"] } } }, "dhaka": { "districts": { "dhaka": { "name": "ঢাকা", "upazilas": ["সাভার", "ধামরাই", "কেরানীগঞ্জ", "নবাবগঞ্জ", "দোহার"] }, "faridpur": { "name": "ফরিদপুর", "upazilas": ["ফরিদপুর সদর", "আলফাডাঙ্গা", "বোয়ালমারী", "সদরপুর", "নগরকান্দা", "ভাঙ্গা", "চরভদ্রাসন", "মধুখালী", "সালথা"] }, "gazipur": { "name": "গাজীপুর", "upazilas": ["গাজীপুর সদর", "কালিয়াকৈর", "কালীগঞ্জ", "কাপাসিয়া", "শ্রীপুর"] }, "gopalganj": { "name": "গোপালগঞ্জ", "upazilas": ["গোপালগঞ্জ সদর", "কাশিয়ানী", "কোটালীপাড়া", "মুকসুদপুর", "টুঙ্গীপাড়া"] }, "kishoreganj": { "name": "কিশোরগঞ্জ", "upazilas": ["অষ্টগ্রাম", "বাজিতপুর", "ভৈরব", "হোসেনপুর", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "মিঠামইন", "নিকলী", "পাকুন্দিয়া", "তাড়াইল"] }, "madaripur": { "name": "মাদারীপুর", "upazilas": ["কালকিনি", "মাদারীপুর সদর", "রাজৈর", "শিবচর", "ডাসার"] }, "manikganj": { "name": "মানিকগঞ্জ", "upazilas": ["দৌলতপুর", "ঘিওর", "হরিরামপুর", "মানিকগঞ্জ সদর", "সাটুরিয়া", "শিবালয়", "সিঙ্গাইর"] }, "munshiganj": { "name": "মুন্সিগঞ্জ", "upazilas": ["গজারিয়া", "লৌহজং", "মুন্সিগঞ্জ সদর", "সিরাজদিখান", "শ্রীনগর", "টঙ্গিবাড়ী"] }, "narayanganj": { "name": "নারায়ণগঞ্জ", "upazilas": ["আড়াইহাজার", "বন্দর", "নারায়ণগঞ্জ সদর", "রূপগঞ্জ", "সোনারগাঁও"] }, "narsingdi": { "name": "নরসিংদী", "upazilas": ["বেলাব", "মনোহরদী", "নরসিংদী সদর", "পলাশ", "রায়পুরা", "শিবপুর"] }, "rajbari": { "name": "রাজবাড়ী", "upazilas": ["বালিয়াকান্দি", "গোয়ালন্দ", "পাংশা", "রাজবাড়ী সদর", "কালুখালী"] }, "shariatpur": { "name": "শরীয়তপুর", "upazilas": ["ভেদরগঞ্জ", "ডামুড্যা", "গোসাইরহাট", "নড়িয়া", "শরীয়তপুর সদর", "জাজিরা"] }, "tangail": { "name": "টাঙ্গাইল", "upazilas": ["বাসাইল", "ভুঞাপুর", "দেলদুয়ার", "ধনবাড়ী", "ঘাটাইল", "গোপালপুর", "মধুপুর", "মির্জাপুর", "নাগরপুর", "সখিপুর", "টাঙ্গাইল সদর", "কালিহাতী"] } } }, "khulna": { "districts": { "bagerhat": { "name": "বাগেরহাট", "upazilas": ["বাগেরহাট সদর", "চিতলমারী", "ফকিরহাট", "কচুয়া", "মোল্লাহাট", "মোংলা", "মোরেলগঞ্জ", "রামপাল", "শরণখোলা"] }, "chuadanga": { "name": "চুয়াডাঙ্গা", "upazilas": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "দামুড়হুদা", "জীবননগর"] }, "jashore": { "name": "যশোর", "upazilas": ["অভয়নগর", "বাঘারপাড়া", "চৌগাছা", "ঝিকরগাছা", "কেশবপুর", "যশোর সদর", "মণিরামপুর", "শার্শা"] }, "jhenaidah": { "name": "ঝিনাইদহ", "upazilas": ["হরিণাকুণ্ডু", "ঝিনাইদহ সদর", "কালীগঞ্জ", "কোটচাঁদপুর", "মহেশপুর", "শৈলকুপা"] }, "khulna": { "name": "খুলনা", "upazilas": ["বটিয়াঘাটা", "দাকোপ", "দিঘলিয়া", "ডুমুরিয়া", "ফুলতলা", "কয়রা", "পাইকগাছা", "রূপসা", "তেরখাদা"] }, "kushtia": { "name": "কুষ্টিয়া", "upazilas": ["ভেড়ামারা", "দৌলতপুর", "খোকসা", "কুমারখালী", "কুষ্টিয়া সদর", "মিরপুর"] }, "magura": { "name": "মাগুরা", "upazilas": ["মাগুরা সদর", "মহম্মদপুর", "শালিখা", "শ্রীপুর"] }, "meherpur": { "name": "মেহেরপুর", "upazilas": ["গাংনী", "মেহেরপুর সদর", "মুজিবনগর"] }, "narail": { "name": "নড়াইল", "upazilas": ["কালিয়া", "লোহাগড়া", "নড়াইল সদর"] }, "satkhira": { "name": "সাতক্ষীরা", "upazilas": ["আশাশুনি", "দেবহাটা", "কলারোয়া", "সাতক্ষীরা সদর", "শ্যামনগর", "তালা", "কালিগঞ্জ"] } } }, "mymensingh": { "districts": { "jamalpur": { "name": "জামালপুর", "upazilas": ["বকশীগঞ্জ", "দেওয়ানগঞ্জ", "ইসলামপুর", "জামালপুর সদর", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"] }, "mymensingh": { "name": "ময়মনসিংহ", "upazilas": ["ভালুকা", "ত্রিশাল", "হালুয়াঘাট", "ফুলপুর", "ধোবাউড়া", "ময়মনসিংহ সদর", "মুক্তাগাছা", "ফুলবাড়ীয়া", "গফরগাঁও", "ঈশ্বরগঞ্জ", "নান্দাইল", "গৌরীপুর", "তারাকান্দা"] }, "netrokona": { "name": "নেত্রকোনা", "upazilas": ["বারহাট্টা", "দুর্গাপুর", "খালিয়াজুরী", "কলমাকান্দা", "কেন্দুয়া", "মদন", "মোহনগঞ্জ", "নেত্রকোনা সদর", "পূর্বধলা", "আটপাড়া"] }, "sherpur": { "name": "শেরপুর", "upazilas": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"] } } }, "rajshahi": { "districts": { "bogra": { "name": "বগুড়া", "upazilas": ["আদমদীঘি", "বগুড়া সদর", "ধুনট", "দুপচাঁচিয়া", "গাবতলী", "কাহালু", "নন্দীগ্রাম", "সারিয়াকান্দি", "শাজাহানপুর", "শেরপুর", "শিবগঞ্জ", "সোনাতলা"] }, "joypurhat": { "name": "জয়পুরহাট", "upazilas": ["আক্কেলপুর", "জয়পুরহাট সদর", "কালাই", "ক্ষেতলাল", "পাঁচবিবি"] }, "naogaon": { "name": "নওগাঁ", "upazilas": ["আত্রাই", "বদলগাছী", "ধামইরহাট", "মান্দা", "মহাদেবপুর", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নীতলা", "পোরশা", "রানীনগর", "সাপাহার"] }, "natore": { "name": "নাটোর", "upazilas": ["বাগাতিপাড়া", "বড়াইগ্রাম", "গুরুদাসপুর", "লালপুর", "নাটোর সদর", "সিংড়া", "নলডাঙ্গা"] }, "chapainawabganj": { "name": "চাঁপাইনবাবগঞ্জ", "upazilas": ["ভোলাহাট", "গোমস্তাপুর", "নাচোল", "নবাবগঞ্জ সদর", "শিবগঞ্জ"] }, "pabna": { "name": "পাবনা", "upazilas": ["আটঘরিয়া", "বেড়া", "ভাঙ্গুড়া", "চাটমোহর", "ফরিদপুর", "ঈশ্বরদী", "পাবনা সদর", "সাঁথিয়া", "সুজানগর"] }, "rajshahi": { "name": "রাজশাহী", "upazilas": ["বাঘা", "বাগমারা", "চারঘাট", "দুর্গাপুর", "গোদাগাড়ী", "মোহনপুর", "পবা", "পুঠিয়া", "তানোর"] }, "sirajganj": { "name": "সিরাজগঞ্জ", "upazilas": ["বেলকুচি", "চৌহালি", "কামারখন্দ", "কাজীপুর", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর", "তাড়াশ", "উল্লাপাড়া"] } } }, "rangpur": { "districts": { "dinajpur": { "name": "দিনাজপুর", "upazilas": ["বিরামপুর", "বীরগঞ্জ", "বিরল", "বোচাগঞ্জ", "চিরিরবন্দর", "ফুলবাড়ী", "ঘোড়াঘাট", "হাকিমপুর", "কাহারোল", "খানসামা", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর"] }, "gaibandha": { "name": "গাইবান্ধা", "upazilas": ["ফুলছড়ি", "গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "সাদুল্লাপুর", "সাঘাটা", "সুন্দরগঞ্জ"] }, "kurigram": { "name": "কুড়িগ্রাম", "upazilas": ["ভুরুঙ্গামারী", "চর রাজিবপুর", "চিলমারী", "ফুলবাড়ী", "কুড়িগ্রাম সদর", "নাগেশ্বরী", "রাজারহাট", "রৌমারী", "উলিপুর"] }, "lalmonirhat": { "name": "লালমনিরহাট", "upazilas": ["আদিতমারী", "হাতীবান্ধা", "কালীগঞ্জ", "লালমনিরহাট সদর", "পাটগ্রাম"] }, "nilphamari": { "name": "নীলফামারী", "upazilas": ["ডিমলা", "ডোমার", "জলঢাকা", "কিশোরগঞ্জ", "নীলফামারী সদর", "সৈয়দপুর"] }, "panchagarh": { "name": "পঞ্চগড়", "upazilas": ["আটোয়ারী", "বোদা", "দেবীগঞ্জ", "পঞ্চগড় সদর", "তেতুলিয়া"] }, "rangpur": { "name": "রংপুর", "upazilas": ["বদরগঞ্জ", "গঙ্গাচড়া", "কাউনিয়া", "রংপুর সদর", "মিঠাপুকুর", "পীরগাছা", "পীরগঞ্জ", "তারাগঞ্জ"] }, "thakurgaon": { "name": "ঠাকুরগাঁও", "upazilas": ["বালিয়াডাঙ্গী", "হরিপুর", "পীরগঞ্জ", "রানীশংকৈল", "ঠাকুরগাঁও সদর"] } } }, "sylhet": { "districts": { "habiganj": { "name": "হবিগঞ্জ", "upazilas": ["আজমিরীগঞ্জ", "বাহুবল", "বানিয়াচং", "চুনারুঘাট", "হবিগঞ্জ সদর", "লাখাই", "মাধবপুর", "নবীগঞ্জ"] }, "moulvibazar": { "name": "মৌলভীবাজার", "upazilas": ["বড়লেখা", "জুড়ী", "কমলগঞ্জ", "কুলাউড়া", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"] }, "sunamganj": { "name": "সুনামগঞ্জ", "upazilas": ["বিশ্বম্ভরপুর", "ছাতক", "দিরাই", "ধর্মপাশা", "দোয়ারাবাজার", "জগন্নাথপুর", "জামালগঞ্জ", "শাল্লা", "সুনামগঞ্জ সদর", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "মধ্যনগর"] }, "sylhet": { "name": "সিলেট", "upazilas": ["বালাগঞ্জ", "বিয়ানীবাজার", "বিশ্বনাথ", "কোম্পানীগঞ্জ", "ফেঞ্চুগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জৈন্তাপুর", "কানাইঘাট", "সিলেট সদর", "জকিগঞ্জ", "দক্ষিণ সুরমা", "ওসমানীনগর"] } } } };
+
+            function calculateAge(birthDateValue) {
+                if (!birthDateValue) return '';
+                const birthDate = new Date(birthDateValue);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) { age--; }
+                return age >= 0 ? age : '';
+            }
+
+            // Firebase Auth state listener
+            window.onAuthStateChanged(window.auth, async (user) => {
+                if (user) {
+                    // ইউজারের ডাটা লোড করা
+                    const docRef = window.doc(window.db, "users", user.uid);
+                    
+                    try {
+                        const docSnap = await window.getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            
+                            // ফর্মে ডাটা বসানো
+                            if (data.name) nameInput.value = data.name;
+                            if (data.mobile) mobileInput.value = data.mobile;
+                            if (data.birthDate) {
+                                birthDateInput.value = data.birthDate;
+                                const age = calculateAge(data.birthDate);
+                                ageInput.value = age;
+                            }
+                            if (data.gender) {
+                                genderSelect.value = data.gender;
+                                genderSelect.dispatchEvent(new Event('change'));
+                            }
+                            if (data.weight) weightInput.value = data.weight;
+                            if (data.bloodGroup) bloodGroupSelect.value = data.bloodGroup;
+                            if (data.lastDonation) lastDonationInput.value = data.lastDonation;
+                            
+                            if (data.neverDonated) {
+                                neverDonatedCheckbox.checked = true;
+                                lastDonationInput.disabled = true;
+                            }
+
+                            // লোকেশন ডাটা বসানো
+                            if (data.division) {
+                                divisionSelect.value = data.division;
+                                populateDistricts(data.division); // ড্রপডাউন আপডেট করা
+                                
+                                if (data.district) {
+                                    districtSelect.value = data.district;
+                                    populateUpazilas(data.division, data.district); // ড্রপডাউন আপডেট করা
+                                    
+                                    if (data.upazila) {
+                                        // অপশন টেক্সট দিয়ে সিলেক্ট করা
+                                        const options = Array.from(upazilaSelect.options);
+                                        const option = options.find(opt => opt.text === data.upazila);
+                                        if(option) upazilaSelect.value = option.value;
+                                    }
+                                }
+                            }
+
+                            if (data.willingness) {
+                                document.querySelector(`input[name="willingness"][value="${data.willingness}"]`).checked = true;
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user data:", error);
+                    }
+                } else {
+                    // ইউজার লগইন না থাকলে লগইন পেজে পাঠানো
+                    window.location.href = 'log_in.html';
+                }
+            });
+
+            // Helper functions for dropdowns
+            function populateDistricts(selectedDivision) {
+                districtSelect.innerHTML = '<option value="" disabled selected>জেলা নির্বাচন করুন</option>';
+                upazilaSelect.innerHTML = '<option value="" disabled selected>প্রথমে জেলা নির্বাচন করুন</option>';
+                districtSelect.disabled = true;
+                upazilaSelect.disabled = true;
+                if (selectedDivision && locationData[selectedDivision]) {
+                    const districts = locationData[selectedDivision].districts;
+                    for (const key in districts) {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = districts[key].name;
+                        districtSelect.appendChild(option);
+                    }
+                    districtSelect.disabled = false;
+                }
+            }
+
+            function populateUpazilas(selectedDivision, selectedDistrict) {
+                upazilaSelect.innerHTML = '<option value="" disabled selected>উপজেলা নির্বাচন করুন</option>';
+                upazilaSelect.disabled = true;
+                if (selectedDivision && selectedDistrict && locationData[selectedDivision]?.districts[selectedDistrict]) {
+                    const upazilas = locationData[selectedDivision].districts[selectedDistrict].upazilas;
+                    upazilas.forEach(upazila => {
+                        const option = document.createElement('option');
+                        option.value = upazila.toLowerCase().replace(/\s/g, '');
+                        option.textContent = upazila;
+                        upazilaSelect.appendChild(option);
+                    });
+                    upazilaSelect.disabled = false;
+                }
+            }
+
+            // Event Listeners
+            birthDateInput.addEventListener('change', function() {
+                const age = calculateAge(this.value);
+                ageInput.value = age;
+                if (age > 0 && (age < 18 || age > 60)) {
+                    ageInput.style.borderColor = 'red';
+                    alert('রক্তদাতা হওয়ার জন্য বয়স অবশ্যই ১৮ থেকে ৬০ বছরের মধ্যে হতে হবে।');
+                } else { ageInput.style.borderColor = '#ddd'; }
+            });
+
+            neverDonatedCheckbox.addEventListener('change', function() {
+                lastDonationInput.disabled = this.checked;
+                if (this.checked) {
+                    lastDonationInput.value = '';
+                }
+            });
+
+            divisionSelect.addEventListener('change', function() {
+                populateDistricts(this.value);
+            });
+
+            districtSelect.addEventListener('change', function() {
+                populateUpazilas(divisionSelect.value, this.value);
+            });
+
+            genderSelect.addEventListener('change', function() {
+                if (this.value === 'female') {
+                    mobileLabel.innerHTML = '<i class="fas fa-phone"></i> মোবাইল নম্বর or ইমেল';
+                    mobileInput.type = 'text';
+                    mobileInput.placeholder = 'আপনার মোবাইল নম্বর বা ইমেল';
+                    privacyMessage.style.display = 'block';
+                } else {
+                    mobileLabel.innerHTML = '<i class="fas fa-phone"></i> মোবাইল নম্বর';
+                    mobileInput.type = 'tel';
+                    mobileInput.placeholder = 'আপনার মোবাইল নম্বর';
+                    privacyMessage.style.display = 'none';
+                }
+            });
+
+            function validateProfileForm() {
+                const isFormValid = profileEditForm.checkValidity();
+                const allTermsChecked = Array.from(termsCheckboxes).every(checkbox => checkbox.checked);
+                saveBtn.disabled = !(isFormValid && allTermsChecked);
+            }
+
+            profileEditForm.addEventListener('input', validateProfileForm);
+            termsCheckboxes.forEach(checkbox => checkbox.addEventListener('change', validateProfileForm));
+
+            // Form Submission
+            profileEditForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                if (!saveBtn.disabled) {
+                    const user = window.auth.currentUser;
+                    if (!user) return;
+
+                    const selectedUpazilaOption = upazilaSelect.options[upazilaSelect.selectedIndex];
+                    const updatedData = {
+                        name: nameInput.value, 
+                        birthDate: birthDateInput.value, 
+                        mobile: mobileInput.value,
+                        gender: genderSelect.value, 
+                        weight: weightInput.value, 
+                        bloodGroup: bloodGroupSelect.value,
+                        lastDonation: lastDonationInput.value, 
+                        neverDonated: neverDonatedCheckbox.checked,
+                        division: divisionSelect.value, 
+                        district: districtSelect.value,
+                        upazila: selectedUpazilaOption ? selectedUpazilaOption.textContent : '',
+                        willingness: document.querySelector('input[name="willingness"]:checked').value
+                    };
+
+                    try {
+                        // ফায়ারস্টোরে ডাটা আপডেট করা
+                        await window.updateDoc(window.doc(window.db, "users", user.uid), updatedData);
+                        alert('আপনার প্রোফাইল সফলভাবে সংরক্ষণ করা হয়েছে!');
+                        window.location.href = 'profile.html';
+                    } catch (error) {
+                        console.error("Error updating profile:", error);
+                        alert("প্রোফাইল আপডেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+                    }
+                }
+            });
+            
+            const toggleMobileMenu = () => {
+                const isOpen = mobileNavWindow.classList.contains('open');
+                navOverlay.style.display = isOpen ? 'none' : 'block';
+                mobileNavWindow.classList.toggle('open');
+            };
+            mobileMenuIcon.addEventListener('click', toggleMobileMenu);
+            closeMobileNavBtn.addEventListener('click', toggleMobileMenu);
+            navOverlay.addEventListener('click', toggleMobileMenu);
+
+            profileBtn.addEventListener('click', () => {
+                const confirmed = confirm('আপনার করা পরিবর্তনগুলো সেভ হবে না। আপনি কি তাও প্রোফাইল পেজে ফিরে যেতে চান?');
+                if (confirmed) {
+                    window.location.href = 'profile.html';
+                }
+            });
+
+            // --- Initial Load ---
+            function initializePage() {
+                profileEditSection.style.display = 'block';
+                editModeButtons.style.display = 'flex';
+                setTimeout(() => {
+                    profileEditSection.classList.add('visible');
+                    editModeButtons.classList.add('visible');
+                }, 10);
+            }
+            initializePage();
+        });
+    </script>
+</body>
+</html>

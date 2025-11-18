@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইমারজেন্সি ব্লাড - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // গ্লোবাল ভেরিয়েবল
+      window.auth = auth;
+      window.db = db;
+      window.collection = collection;
+      window.getDocs = getDocs;
+      window.query = query;
+      window.orderBy = orderBy;
+      window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+
+    <style>
+        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 50px; color: var(--text); font-weight: 600; }
+        header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; }
+        .logo i { font-size: 1.8rem; }
+        nav ul { display: flex; list-style: none; gap: 25px; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: var(--transition); position: relative; }
+        nav a:hover { color: var(--primary); }
+        nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
+        nav a.active { color: var(--primary); }
+        nav a.active::after, nav a:hover::after { width: 100%; }
+        .auth-buttons { display: flex; gap: 15px; }
+        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; }
+        .emergency-blood-section { padding: 60px 0; }
+        .emergency-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .emergency-card { background-color: var(--white); border-radius: 15px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; border-top: 5px solid var(--primary); transition: var(--transition); }
+        .emergency-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); }
+        .card-header { padding: 25px 20px; text-align: center; background-color: #fef4f4; }
+        .card-blood-group { font-size: 3.5rem; font-weight: 700; color: var(--primary); line-height: 1; }
+        .card-body { padding: 25px; flex-grow: 1; }
+        .card-info { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; font-size: 1.05rem; color: var(--text-light); }
+        .card-info i { color: var(--primary); font-size: 1.2rem; width: 20px; margin-top: 3px; }
+        .card-info .info-label { font-weight: 500; color: var(--text); margin-right: 5px; }
+        .card-footer { padding: 0 25px 25px; text-align: center; }
+        .card-footer .btn { width: 100%; padding: 12px; }
+        footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; margin-top: 60px; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
+        .footer-column h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 2px; background: var(--primary); }
+        .footer-links { list-style: none; padding: 0; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { color: #ddd; text-decoration: none; transition: var(--transition); }
+        .footer-links a:hover { color: var(--primary); padding-left: 5px; }
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
+        .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
+        .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
+        .nav-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1100; }
+        .mobile-nav-window { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%); display: flex; align-items: center; gap: 5px; background: rgba(110, 100, 100, 0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.18); padding: 10px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 1200; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .mobile-nav-window.open { transform: translateX(-50%) translateY(0); }
+        .mobile-nav-window ul { list-style: none; display: flex; flex-direction: row; gap: 8px; margin: 0; padding: 0; }
+        .mobile-nav-window a { display: block; background: var(--white); color: var(--text); padding: 8px 16px; border-radius: 30px; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap; transition: var(--transition); }
+        .mobile-nav-window a:hover { background-color: #f0f0f0; transform: translateY(-1px); }
+        .close-mobile-nav { cursor: pointer; color: #f0f0f0; font-size: 1.8rem; font-weight: 400; line-height: 1; padding: 0 8px; font-family: Arial, sans-serif; transition: color 0.3s ease; }
+        .close-mobile-nav:hover { color: var(--white); }
+        @media (max-width: 992px) { .header-content { justify-content: space-between; } nav { display: none; } .auth-buttons { display: none; } .mobile-menu { display: block; } }
+        @media (max-width: 768px) { .emergency-cards-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo"> <i class="fas fa-tint"></i> <span>আমাদের জন্য আমরা</span> </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">হোম</a></li>
+                        <li><a href="#">রক্তদাতা</a></li>
+                        <li><a href="#">জরুরি যোগাযোগ</a></li>
+                        <li><a href="#" class="active">ইমারজেন্সি ব্লাড</a></li>
+                    </ul>
+                </nav>
+                <div class="mobile-menu"> <i class="fas fa-bars"></i> </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div class="nav-overlay" id="navOverlay"></div>
+    <div class="mobile-nav-window" id="mobileNavWindow">
+        <ul>
+            <li><a href="index.html">হোম</a></li> 
+            <li><a href="#">রক্তদাতা</a></li> 
+            <li><a href="#">জরুরি যোগাযোগ</a></li> 
+            <li><a href="#">ইমারজেন্সি ব্লাড</a></li>
+        </ul>
+        <div class="close-mobile-nav" id="closeMobileNav">&times;</div>
+    </div>
+
+    <!-- Emergency Blood Section -->
+    <main>
+        <section class="emergency-blood-section">
+            <div class="container">
+                <h1 class="section-title">ইমারজেন্সি ব্লাড পোস্ট</h1>
+                <div class="emergency-cards-grid" id="emergencyCardsGrid">
+                     <p style="text-align: center; grid-column: 1 / -1;">লোড হচ্ছে...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>আমাদের জন্য আমরা</h3>
+                    <p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>লিংকস</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li>
+                        <li><a href="#">জরুরি যোগাযোগ</a></li><li><a href="#">ইমারজেন্সি ব্লাড</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>সহায়তা</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">সাপোর্ট</a></li><li><a href="#">জরুরী যোগাযোগ</a></li><li><a href="#">রক্তদানের নিয়ম</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>যোগাযোগ</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt"></i> নাটোর, বাংলাদেশ</li>
+                        <li><i class="fas fa-phone"></i> +880 1851956615</li>
+                        <li><i class="fas fa-envelope"></i> info@nur.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuIcon = document.querySelector('.mobile-menu');
+            const mobileNavWindow = document.getElementById('mobileNavWindow');
+            const closeMobileNavBtn = document.getElementById('closeMobileNav');
+            const navOverlay = document.getElementById('navOverlay');
+            
+            const toggleMobileMenu = () => {
+                const isOpen = mobileNavWindow.classList.contains('open');
+                navOverlay.style.display = isOpen ? 'none' : 'block';
+                mobileNavWindow.classList.toggle('open');
+            };
+
+            mobileMenuIcon.addEventListener('click', toggleMobileMenu);
+            closeMobileNavBtn.addEventListener('click', toggleMobileMenu);
+            navOverlay.addEventListener('click', toggleMobileMenu);
+
+            async function loadEmergencyPosts() {
+                const postsGrid = document.getElementById('emergencyCardsGrid');
+                postsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">লোড হচ্ছে...</p>';
+
+                try {
+                    // ফায়ারবেজ থেকে পোস্ট ফেচ করা (createdAt অনুযায়ী সাজানো)
+                    const q = window.query(window.collection(window.db, "emergency_posts"), window.orderBy("createdAt", "desc"));
+                    const querySnapshot = await window.getDocs(q);
+
+                    postsGrid.innerHTML = ''; 
+
+                    if (querySnapshot.empty) {
+                        postsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-light); font-size: 1.1rem;">এখনো কোনো জরুরি রক্তের পোস্ট করা হয়নি।</p>';
+                    } else {
+                        querySnapshot.forEach((doc) => {
+                            const post = doc.data();
+                            const cardElement = document.createElement('div');
+                            cardElement.className = 'emergency-card';
+                            cardElement.innerHTML = `
+                                <div class="card-header">
+                                    <div class="card-blood-group">${post.bloodGroup}</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="card-info">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                        <div>
+                                            <span class="info-label">বিভাগ:</span> ${post.division}<br>
+                                            <span class="info-label">জেলা:</span> ${post.district}<br>
+                                            <span class="info-label">উপজেলা:</span> ${post.upazila}
+                                        </div>
+                                    </div>
+                                    <div class="card-info">
+                                        <i class="fas fa-phone"></i>
+                                        <div>
+                                            <span class="info-label">যোগাযোগ:</span>
+                                            <span>${post.contact}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-primary contact-btn" data-contact="${post.contact}">
+                                        <i class="fas fa-phone-alt"></i> 
+                                        <span>যোগাযোগ করুন</span>
+                                    </button>
+                                </div>
+                            `;
+                            postsGrid.appendChild(cardElement);
+                        });
+                        addContactButtonListeners();
+                    }
+                } catch (error) {
+                    console.error("Error loading posts:", error);
+                    // ইনডেক্সিং এরর হলে কনসোলে লিংক দেখাবে, তবে ডেভেলপমেন্টে সাধারণ এরর মেসেজ দেখানো ভালো
+                    if(error.message.includes("indexes")) {
+                         console.log("Please create an index in Firestore console using the link in the error above.");
+                    }
+                    postsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">পোস্ট লোড করতে সমস্যা হয়েছে।</p>';
+                }
+            }
+            
+            function addContactButtonListeners() {
+                const contactButtons = document.querySelectorAll('.contact-btn');
+                contactButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const contactNumber = e.currentTarget.dataset.contact;
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                        if (isMobile) {
+                            window.location.href = `tel:${contactNumber}`;
+                        } else {
+                            navigator.clipboard.writeText(contactNumber).then(() => {
+                                const buttonSpan = e.currentTarget.querySelector('span');
+                                const originalText = buttonSpan.textContent;
+                                const buttonIcon = e.currentTarget.querySelector('i');
+                                
+                                buttonSpan.textContent = 'কপি হয়েছে!';
+                                buttonIcon.className = 'fas fa-check';
+                                e.currentTarget.disabled = true;
+
+                                setTimeout(() => {
+                                    buttonSpan.textContent = originalText;
+                                    buttonIcon.className = 'fas fa-phone-alt';
+                                    e.currentTarget.disabled = false;
+                                }, 2500);
+                            }).catch(err => {
+                                console.error('নম্বর কপি করা সম্ভব হয়নি: ', err);
+                                alert('ব্রাউজার সাপোর্ট না করায় নম্বরটি কপি করা যায়নি।');
+                            });
+                        }
+                    });
+                });
+            }
+
+            // পেজ লোড হলে পোস্টগুলো আনুন
+            loadEmergencyPosts();
+        });
+    </script>
+</body>
+</html>

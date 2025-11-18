@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>লগ ইন - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // গ্লোবাল ভেরিয়েবল
+      window.auth = auth;
+      window.db = db;
+      window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    </script>
+
+    <style>
+        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .form-container { background: var(--white); border-radius: 15px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); animation: slideUp 0.4s ease; position: relative; }
+        .form-container h2 { text-align: center; margin-bottom: 25px; color: var(--text); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; transition: var(--transition); }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.2); }
+        .form-footer { text-align: center; margin-top: 20px; }
+        .form-footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .form-footer a:hover { text-decoration: underline; }
+        .home-link { position: absolute; top: 15px; left: 20px; font-size: 1.2rem; color: var(--text-light); text-decoration: none; transition: var(--transition); }
+        .home-link:hover { color: var(--primary); }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- হোম লিংক index.html এ পরিবর্তন করা হয়েছে -->
+        <a href="index.html" class="home-link" title="হোম পেজে ফিরে যান"><i class="fas fa-arrow-left"></i></a>
+        <h2>লগ ইন</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">ইমেইল</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="আপনার ইমেইল দিন" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">পাসওয়ার্ড</label>
+                <input type="password" id="loginPassword" class="form-control" placeholder="আপনার পাসওয়ার্ড দিন" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">লগ ইন</button>
+            <div class="form-footer">
+                <p>অ্যাকাউন্ট নেই? <a href="sign_up.html">সাইন আপ করুন</a></p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                // ফায়ারবেজ অথেন্টিকেশনের মাধ্যমে লগইন
+                await window.signInWithEmailAndPassword(window.auth, email, password);
+                
+                alert('লগ ইন সফলভাবে সম্পন্ন হয়েছে!');
+                
+                // লগইন সফল হলে হোম পেজে রিডাইরেক্ট
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                console.error("Login error:", error);
+                
+                let message = "লগ ইন ব্যর্থ হয়েছে।";
+                // এরর হ্যান্ডলিং
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    message = "ইমেইল বা পাসওয়ার্ড ভুল।";
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = "অনেকবার ভুল চেষ্টা করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+                }
+
+                alert(message);
+            }
+        });
+    </script>
+</body>
+</html>

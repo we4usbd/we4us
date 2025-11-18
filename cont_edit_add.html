@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>তথ্য যোগ/সম্পাদনা - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getFirestore, collection, addDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // গ্লোবাল ভেরিয়েবল
+      window.db = db;
+      window.collection = collection;
+      window.addDoc = addDoc;
+      window.doc = doc;
+      window.setDoc = setDoc;
+      window.getDoc = getDoc;
+    </script>
+
+    <style>
+        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        :root { --primary: #e53935; --primary-dark: #c62828; --secondary: #f5f5f5; --text: #333; --text-light: #666; --white: #fff; --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); --transition: all 0.3s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-primary[disabled] { background: #ccc; cursor: not-allowed; }
+        header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none; }
+        .logo i { font-size: 1.8rem; }
+        .page-view { display: block; min-height: 100vh; }
+        .edit-section { padding: 80px 0; }
+        .edit-container { background-color: var(--white); border-radius: 30px; box-shadow: var(--shadow); padding: 40px; width: 100%; max-width: 800px; margin: 0 auto; }
+        .edit-title { text-align: center; margin-bottom: 30px; color: var(--text); font-size: 1.8rem; }
+        .edit-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .edit-form .form-group label { font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .edit-form .form-control { padding: 12px 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; transition: var(--transition); background-color: #f9f9f9; }
+        .edit-form .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.2); background-color: var(--white); }
+        .save-btn { padding: 15px; border-radius: 10px; font-weight: 600; font-size: 1.1rem; margin-top: 10px; width: 100%; }
+        .save-btn:hover:not([disabled]) { transform: translateY(-2px); }
+        @media (max-width: 768px) { .edit-form { grid-template-columns: 1fr; } .form-group.full-width { grid-column: 1 / 1; } }
+    </style>
+</head>
+<body>
+    <!-- Add New Contract Page View -->
+    <div class="page-view" id="editPageView">
+        <header class="header">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="index.html" class="logo home-link"><i class="fas fa-edit"></i><span>আমাদের জন্য আমরা</span></a>
+                <a href="index.html" class="btn btn-primary home-link">ব্যাক</a>
+            </div>
+        </header>
+        <main><section class="edit-section"><div class="edit-container">
+            <h1 class="edit-title"><i class="fas fa-plus-circle"></i> নতুন তথ্য যোগ করুন</h1>
+            <form class="edit-form" id="editForm">
+                <div class="form-group full-width"><label for="serviceType">সেকশন</label><select id="serviceType" class="form-control" required><option value="" disabled selected>সেকশন নির্বাচন করুন</option><option value="পুলিশ স্টেশন">পুলিশ স্টেশন</option><option value="হাসপাতাল ও ডাক্তার">হাসপাতাল ও ডাক্তার</option><option value="ফায়ার সার্ভিস">ফায়ার সার্ভিস</option><option value="এম্বুলেন্স">এম্বুলেন্স</option><option value="বিদ্যুৎ জোনাল অফিস">বিদ্যুৎ জোনাল অফিস</option><option value="গ্যাস ফিলিং স্টেশন">গ্যাস ফিলিং স্টেশন</option><option value="ওয়াসা">ওয়াসা</option></select></div>
+                <div class="form-group"><label for="editDivision">বিভাগ</label><select id="editDivision" class="form-control" required><option value="" disabled selected>বিভাগ নির্বাচন করুন</option></select></div>
+                <div class="form-group"><label for="editDistrict">জেলা</label><select id="editDistrict" class="form-control" disabled required><option value="" disabled selected>প্রথমে বিভাগ নির্বাচন করুন</option></select></div>
+                <div class="form-group full-width"><label for="editUpazila">উপজেলা</label><select id="editUpazila" class="form-control" disabled required><option value="" disabled selected>প্রথমে জেলা নির্বাচন করুন</option></select></div>
+                <div class="form-group full-width"><label for="personName">নাম</label><input type="text" id="personName" class="form-control" placeholder="ব্যক্তি বা প্রতিষ্ঠানের নাম" required></div>
+                <div class="form-group full-width"><label for="officeName">পদ / অফিস নাম</label><input type="text" id="officeName" class="form-control" placeholder="যেমন: সদর থানা বা প্রধান ডাক্তারের নাম" required></div>
+                <div class="form-group"><label for="mobileNumber">মোবাইল নম্বর</label><input type="tel" id="mobileNumber" class="form-control" placeholder="01XXXXXXXXX"></div>
+                <div class="form-group"><label for="emailAddress">ই-মেল (অপশনাল)</label><input type="email" id="emailAddress" class="form-control" placeholder="example@mail.com"><p style="font-size: 0.8rem; margin-top: 5px;">▪️ মোবাইল নম্বর দিলে ই-মেল না দিলেও হবে।</p></div>
+                <div class="form-group full-width"><button type="submit" id="saveBtn" class="btn btn-primary save-btn" disabled>সেভ করুন</button></div>
+            </form>
+        </div></section></main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const locationData = { "barishal": { "districts": { "barguna": { "name": "বরগুনা", "upazilas": ["আমতলী", "বরগুনা সদর", "বামনা", "বেতাগী", "পাথরঘাটা", "তালতলী"] }, "barishal": { "name": "বরিশাল", "upazilas": ["আগৈলঝাড়া", "বাবুগঞ্জ", "বাকেরগঞ্জ", "বানারীপাড়া", "গৌরনদী", "হিজলা", "বরিশাল সদর", "মেহেন্দিগঞ্জ", "মুলাদী", "উজিরপুর"] }, "bhola": { "name": "ভোলা", "upazilas": ["ভোলা সদর", "বোরহানউদ্দিন", "চরফ্যাশন", "দৌলতখান", "লালমোহন", "মনপুরা", "তজুমদ্দিন"] }, "jhalokati": { "name": "ঝালকাঠি", "upazilas": ["ঝালকাঠি সদর", "কাঁঠালিয়া", "নলছিটি", "রাজাপুর"] }, "patuakhali": { "name": "পটুয়াখালী", "upazilas": ["বাউফল", "দশমিনা", "গলাচিপা", "কলাপাড়া", "মির্জাগঞ্জ", "পটুয়াখালী সদর", "দুমকি", "রাঙ্গাবালী"] }, "pirojpur": { "name": "পিরোজপুর", "upazilas": ["ভান্ডারিয়া", "কাউখালী", "মঠবাড়িয়া", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "জিয়ানগর"] } } }, "chattogram": { "districts": { "bandarban": { "name": "বান্দরবান", "upazilas": ["আলীকদম", "বান্দরবান সদর", "লামা", "নাইক্ষ্যংছড়ি", "রোয়াংছড়ি", "রুমা", "থানচি"] }, "brahmanbaria": { "name": "ব্রাহ্মণবাড়িয়া", "upazilas": ["আখাউড়া", "বাঞ্ছারামপুর", "ব্রাহ্মণবাড়িয়া সদর", "কসবা", "নবীনগর", "নাসিরনগর", "সরাইল", "আশুগঞ্জ", "বিজয়নগর"] }, "chandpur": { "name": "চাঁদপুর", "upazilas": ["চাঁদপুর সদর", "ফরিদগঞ্জ", "হাইমচর", "হাজীগঞ্জ", "কচুয়া", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি"] }, "chattogram": { "name": "চট্টগ্রাম", "upazilas": ["আনোয়ারা", "বাঁশখালী", "বোয়ালখালী", "চন্দনাইশ", "ফটিকছড়ি", "হাটহাজারী", "কর্ণফুলী", "লোহাগাড়া", "মীরসরাই", "পটিয়া", "রাঙ্গুনিয়া", "রাউজান", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুণ্ড"] }, "cumilla": { "name": "কুমিল্লা", "upazilas": ["বরুড়া", "ব্রাহ্মণপাড়া", "বুড়িচং", "চান্দিনা", "চৌদ্দগ্রাম", "দাউদকান্দি", "দেবিদ্বার", "হোমনা", "লাকসাম", "মনোহরগঞ্জ", "মেঘনা", "মুরাদনগর", "নাঙ্গলকোট", "কুমিল্লা সদর", "সদর দক্ষিণ", "তিতাস"] }, "coxs_bazar": { "name": "কক্সবাজার", "upazilas": ["চকরিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "মহেশখালী", "রামু", "টেকনাফ", "উখিয়া", "পেকুয়া", "ঈদগাঁও"] }, "feni": { "name": "ফেনী", "upazilas": ["ছাগলনাইয়া", "দাগনভূঞা", "ফেনী সদর", "পরশুরাম", "সোনাগাজী", "ফুলগাজী"] }, "khagrachhari": { "name": "খাগড়াছড়ি", "upazilas": ["দীঘিনালা", "খাগড়াছড়ি সদর", "লক্ষ্মীছড়ি", "মহালছড়ি", "মানিকছড়ি", "মাটিরাঙ্গা", "পানছড়ি", "রামগড়"] }, "lakshmipur": { "name": "লক্ষ্মীপুর", "upazilas": ["লক্ষ্মীপুর সদর", "কমলনগর", "রায়পুর", "রামগঞ্জ", "রামগতি"] }, "noakhali": { "name": "নোয়াখালী", "upazilas": ["বেগমগঞ্জ", "চাটখিল", "কোম্পানীগঞ্জ", "হাতিয়া", "সেনবাগ", "সুবর্ণচর", "নোয়াখালী সদর", "কবিরহাট"] }, "rangamati": { "name": "রাঙ্গামাটি", "upazilas": ["বাঘাইছড়ি", "বরকল", "কাপ্তাই", "জুড়াছড়ি", "লংগদু", "নানিয়ারচর", "রাজস্থলী", "রাঙ্গামাটি সদর", "কাউখালী", "বিলাইছড়ি"] } } }, "dhaka": { "districts": { "dhaka": { "name": "ঢাকা", "upazilas": ["সাভার", "ধামরাই", "কেরানীগঞ্জ", "নবাবগঞ্জ", "দোহার"] }, "faridpur": { "name": "ফরিদপুর", "upazilas": ["ফরিদপুর সদর", "আলফাডাঙ্গা", "বোয়ালমারী", "সদরপুর", "নগরকান্দা", "ভাঙ্গা", "চরভদ্রাসন", "মধুখালী", "সালথা"] }, "gazipur": { "name": "গাজীপুর", "upazilas": ["গাজীপুর সদর", "কালিয়াকৈর", "কালীগঞ্জ", "কাপাসিয়া", "শ্রীপুর"] }, "gopalganj": { "name": "গোপালগঞ্জ", "upazilas": ["গোপালগঞ্জ সদর", "কাশিয়ানী", "কোটালীপাড়া", "মুকসুদপুর", "টুঙ্গীপাড়া"] }, "kishoreganj": { "name": "কিশোরগঞ্জ", "upazilas": ["অষ্টগ্রাম", "বাজিতপুর", "ভৈরব", "হোসেনপুর", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "মিঠামইন", "নিকলী", "পাকুন্দিয়া", "তাড়াইল"] }, "madaripur": { "name": "মাদারীপুর", "upazilas": ["কালকিনি", "মাদারীপুর সদর", "রাজৈর", "শিবচর", "ডাসার"] }, "manikganj": { "name": "মানিকগঞ্জ", "upazilas": ["দৌলতপুর", "ঘিওর", "হরিরামপুর", "মানিকগঞ্জ সদর", "সাটুরিয়া", "শিবালয়", "সিঙ্গাইর"] }, "munshiganj": { "name": "মুন্সিগঞ্জ", "upazilas": ["গজারিয়া", "লৌহজং", "মুন্সিগঞ্জ সদর", "সিরাজদিখান", "শ্রীনগর", "টঙ্গিবাড়ী"] }, "narayanganj": { "name": "নারায়ণগঞ্জ", "upazilas": ["আড়াইহাজার", "বন্দর", "নারায়ণগঞ্জ সদর", "রূপগঞ্জ", "সোনারগাঁও"] }, "narsingdi": { "name": "নরসিংদী", "upazilas": ["বেলাব", "মনোহরদী", "নরসিংদী সদর", "পলাশ", "রায়পুরা", "শিবপুর"] }, "rajbari": { "name": "রাজবাড়ী", "upazilas": ["বালিয়াকান্দি", "গোয়ালন্দ", "পাংশা", "রাজবাড়ী সদর", "কালুখালী"] }, "shariatpur": { "name": "শরীয়তপুর", "upazilas": ["ভেদরগঞ্জ", "ডামুড্যা", "গোসাইরহাট", "নড়িয়া", "শরীয়তপুর সদর", "জাজিরা"] }, "tangail": { "name": "টাঙ্গাইল", "upazilas": ["বাসাইল", "ভুঞাপুর", "দেলদুয়ার", "ধনবাড়ী", "ঘাটাইল", "গোপালপুর", "মধুপুর", "মির্জাপুর", "নাগরপুর", "সখিপুর", "টাঙ্গাইল সদর", "কালিহাতী"] } } }, "khulna": { "districts": { "bagerhat": { "name": "বাগেরহাট", "upazilas": ["বাগেরহাট সদর", "চিতলমারী", "ফকিরহাট", "কচুয়া", "মোল্লাহাট", "মোংলা", "মোরেলগঞ্জ", "রামপাল", "শরণখোলা"] }, "chuadanga": { "name": "চুয়াডাঙ্গা", "upazilas": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "দামুড়হুদা", "জীবননগর"] }, "jashore": { "name": "যশোর", "upazilas": ["অভয়নগর", "বাঘারপাড়া", "চৌগাছা", "ঝিকরগাছা", "কেশবপুর", "যশোর সদর", "মণিরামপুর", "শার্শা"] }, "jhenaidah": { "name": "ঝিনাইদহ", "upazilas": ["হরিণাকুণ্ডু", "ঝিনাইদহ সদর", "কালীগঞ্জ", "কোটচাঁদপুর", "মহেশপুর", "שৈলকুপা"] }, "khulna": { "name": "খুলনা", "upazilas": ["বটিয়াঘাটা", "দাকোপ", "দিঘলিয়া", "ডুমুরিয়া", "ফুলতলা", "কয়রা", "পাইকগাছা", "রূপসা", "তেরখাদা"] }, "kushtia": { "name": "কুষ্টিয়া", "upazilas": ["ভেড়ামারা", "দৌলতপুর", "খোকসা", "কুমারখালী", "কুষ্টিয়া সদর", "মিরপুর"] }, "magura": { "name": "মাগুরা", "upazilas": ["মাগুরা সদর", "মহম্মদপুর", "শালিখা", "শ্রীপুর"] }, "meherpur": { "name": "মেহেরপুর", "upazilas": ["গাংনী", "মেহেরপুর সদর", "মুজিবনগর"] }, "narail": { "name": "নড়াইল", "upazilas": ["কালিয়া", "লোহাগড়া", "নড়াইল সদর"] }, "satkhira": { "name": "সাতক্ষীরা", "upazilas": ["আশাশুনি", "দেবহাটা", "কলারোয়া", "সাতক্ষীরা সদর", "শ্যামনগর", "তালা", "কালিগঞ্জ"] } } }, "mymensingh": { "districts": { "jamalpur": { "name": "জামালপুর", "upazilas": ["বকশীগঞ্জ", "দেওয়ানগঞ্জ", "ইসলামপুর", "জামালপুর সদর", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"] }, "mymensingh": { "name": "ময়মনসিংহ", "upazilas": ["ভালুকা", "ত্রিশাল", "হালুয়াঘাট", "ফুলপুর", "ধোবাউড়া", "ময়মনসিংহ সদর", "মুক্তাগাছা", "ফুলবাড়ীয়া", "গফরগাঁও", "ঈশ্বরগঞ্জ", "নান্দাইল", "গৌরীপুর", "তারাকান্দা"] }, "netrokona": { "name": "নেত্রকোনা", "upazilas": ["বারহাট্টা", "দুর্গাপুর", "খালিয়াজুরী", "কলমাকান্দা", "কেন্দুয়া", "মদন", "মোহনগঞ্জ", "নেত্রকোনা সদর", "পূর্বধলা", "আটপাড়া"] }, "sherpur": { "name": "শেরপুর", "upazilas": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"] } } }, "rajshahi": { "districts": { "bogra": { "name": "বগুড়া", "upazilas": ["আদমদীঘิ", "বগুড়া সদর", "ধুনট", "দুপচাঁচিয়া", "গাবতলী", "কাহালু", "নন্দীগ্রাম", "সারিয়াকান্দি", "শাজাহานপুর", "শেরপুর", "শিবগঞ্জ", "সোনাতলা"] }, "joypurhat": { "name": "জয়পুরহাট", "upazilas": ["আক্কেলপুর", "জয়পুরহাট সদর", "কালাই", "ক্ষেতলাল", "পাঁচবিবি"] }, "naogaon": { "name": "নওগাঁ", "upazilas": ["আত্রাই", "বদলগাছী", "ধামইরহাট", "মান্দা", "মহাদেবপুর", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নীতলা", "পোরশা", "রানীনগর", "সাপাহার"] }, "natore": { "name": "নাটোর", "upazilas": ["বাগাতিপাড়া", "বড়াইগ্রাম", "গুরুদাসপুর", "লালপুর", "নাটোর সদর", "সিংড়া", "নলডাঙ্গা"] }, "chapainawabganj": { "name": "চাঁপাইনবাবগঞ্জ", "upazilas": ["ভোলাহাট", "গোমস্তাপুর", "নাচোল", "নবাবগঞ্জ সদর", "শিবগঞ্জ"] }, "pabna": { "name": "পাবনা", "upazilas": ["আটঘরিয়া", "বেড়া", "ভাঙ্গুড়া", "চাটমোহর", "ফরিদপুর", "ঈশ্বরদী", "পাবনা সদর", "সাঁথিয়া", "সুজানগর"] }, "rajshahi": { "name": "রাজশাহী", "upazilas": ["বাঘা", "বাগমারা", "চারঘাট", "দুর্গাপুর", "গোদাগাড়ী", "মোহনপুর", "পবা", "পুঠিয়া", "তানোর"] }, "sirajganj": { "name": "সিরাজগঞ্জ", "upazilas": ["বেলকুচি", "চৌহালি", "কামারখন্দ", "কাজীপুর", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর", "তাড়াশ", "উল্লাপাড়া"] } } }, "rangpur": { "districts": { "dinajpur": { "name": "দিনাজপুর", "upazilas": ["বিরামপুর", "বীরগঞ্জ", "বিরল", "বোচাগঞ্জ", "চিরিরবন্দর", "ফুলবাড়ী", "ঘোড়াঘাট", "হাকিমপুর", "কাহারোল", "খানসামা", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর"] }, "gaibandha": { "name": "গাইবান্ধা", "upazilas": ["ফুলছড়ি", "গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "সাদুল্লাপুর", "সাঘাটা", "সুন্দরগঞ্জ"] }, "kurigram": { "name": "কুড়িগ্রাম", "upazilas": ["ভুরুঙ্গামারী", "চর রাজিবপুর", "চিলমারী", "ফুলবাড়ী", "কুড়িগ্রাম সদর", "নাগেশ্বরী", "রাজারহাট", "রৌমারী", "উলিপুর"] }, "lalmonirhat": { "name": "লালমনিরহাট", "upazilas": ["আদিতমারী", "হাতীবান্ধা", "কালীগঞ্জ", "লালমনিরহাট সদর", "পাটগ্রাম"] }, "nilphamari": { "name": "নীলফামারী", "upazilas": ["ডিমলা", "ডোমার", "জলঢাকা", "কিশোরগঞ্জ", "নীলফামারী সদর", "সৈয়দপুর"] }, "panchagarh": { "name": "পঞ্চগড়", "upazilas": ["আটোয়ারী", "বোদা", "দেবীগঞ্জ", "পঞ্চগড় সদর", "তেতুলিয়া"] }, "rangpur": { "name": "রংপুর", "upazilas": ["বদরগঞ্জ", "গঙ্গাচড়া", "কাউনিয়া", "রংপুর সদর", "মিঠাপুকুর", "পীরগাছা", "পীরগঞ্জ", "তারাগঞ্জ"] }, "thakurgaon": { "name": "ঠাকুরগাঁও", "upazilas": ["বালিয়াডাঙ্গী", "হরিপুর", "পীরগঞ্জ", "রানীশংকৈল", "ঠাকুরগাঁও সদর"] } } }, "sylhet": { "districts": { "habiganj": { "name": "হবিগঞ্জ", "upazilas": ["আজমিরীগঞ্জ", "বাহুবল", "বানিয়াচং", "চুনারুঘাট", "হবিগঞ্জ সদর", "লাখাই", "মাধবপুর", "নবীগঞ্জ"] }, "moulvibazar": { "name": "মৌলভীবাজার", "upazilas": ["বড়লেখা", "জুড়ী", "কমলগঞ্জ", "কুলাউড়া", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"] }, "sunamganj": { "name": "সুনামগঞ্জ", "upazilas": ["বিশ্বম্ভরপুর", "ছাতক", "দিরাই", "ধর্মপাশা", "দোয়ারাবাজার", "জগন্নাথপুর", "জামালগঞ্জ", "শাল্লা", "সুনামগঞ্জ সদর", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "মধ্যনগর"] }, "sylhet": { "name": "সিলেট", "upazilas": ["বালাগঞ্জ", "বিয়ানীবাজার", "বিশ্বনাথ", "কোম্পানীগঞ্জ", "ফেঞ্চুগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জৈন্তাপুর", "কানাইঘাট", "সিলেট সদর", "জকিগঞ্জ", "দক্ষিণ সুরমা", "ওসমানীনগর"] } } } };
+
+        // DOM Elements
+        const editTitle = document.querySelector('.edit-title');
+        const editForm = document.getElementById('editForm');
+        const serviceTypeSelect = document.getElementById('serviceType');
+        const editDivisionSelect = document.getElementById('editDivision');
+        const editDistrictSelect = document.getElementById('editDistrict');
+        const editUpazilaSelect = document.getElementById('editUpazila');
+        const personNameInput = document.getElementById('personName');
+        const officeNameInput = document.getElementById('officeName');
+        const mobileNumberInput = document.getElementById('mobileNumber');
+        const emailAddressInput = document.getElementById('emailAddress');
+        const saveBtn = document.getElementById('saveBtn');
+
+        // --- Utility Functions ---
+        const populateDivisions = (selectElement) => {
+            selectElement.innerHTML = '<option value="" disabled selected>বিভাগ নির্বাচন করুন</option>';
+            for (const key in locationData) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = locationData[key].name || key;
+                selectElement.appendChild(option);
+            }
+        };
+
+        const populateDistricts = (divKey, distSelect, upazilaSelect) => {
+            distSelect.innerHTML = '<option value="" disabled selected>জেলা নির্বাচন করুন</option>';
+            upazilaSelect.innerHTML = '<option value="" disabled selected>প্রথমে জেলা নির্বাচন করুন</option>';
+            distSelect.disabled = !divKey;
+            upazilaSelect.disabled = true;
+            if (divKey && locationData[divKey]) {
+                const districts = locationData[divKey].districts;
+                for (const key in districts) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = districts[key].name;
+                    distSelect.appendChild(option);
+                }
+            }
+        };
+
+        const populateUpazilas = (divKey, distKey, upazilaSelect) => {
+            upazilaSelect.innerHTML = '<option value="" disabled selected>উপজেলা নির্বাচন করুন</option>';
+            upazilaSelect.disabled = !distKey;
+            if (divKey && distKey && locationData[divKey].districts[distKey]) {
+                const upazilas = locationData[divKey].districts[distKey].upazilas;
+                upazilas.forEach(upazila => {
+                    const option = document.createElement('option');
+                    option.value = upazila;
+                    option.textContent = upazila;
+                    upazilaSelect.appendChild(option);
+                });
+            }
+        };
+
+        // --- Initialization ---
+        populateDivisions(editDivisionSelect);
+        
+        // Check for editing mode
+        let entryToEdit = JSON.parse(localStorage.getItem('entryToEdit') || 'null');
+        
+        if (entryToEdit && entryToEdit.type === 'edit') {
+             editTitle.innerHTML = `<i class="fas fa-edit"></i> ${entryToEdit.serviceType} তথ্য সম্পাদনা`;
+             serviceTypeSelect.value = entryToEdit.serviceType;
+             
+             // প্রি-সিলেক্ট লজিক (একটু জটিল কারণ ড্রপডাউন ডায়নামিক)
+             // সহজ সমাধানের জন্য ইউজারকে আবার সিলেক্ট করতে বলা যেতে পারে অথবা ধাপে ধাপে সেট করা যেতে পারে
+             // এখানে সিম্পলিসিটির জন্য ভ্যালুগুলো সেট করে দিচ্ছি, ড্রপডাউন পপুলেট হবে চেঞ্জ ইভেন্টে
+             
+             // সঠিক ইমপ্লিমেন্টেশনের জন্য এখানে ড্রপডাউন ম্যানুয়ালি পপুলেট করা উচিত:
+             editDivisionSelect.value = entryToEdit.divisionKey;
+             populateDistricts(entryToEdit.divisionKey, editDistrictSelect, editUpazilaSelect);
+             editDistrictSelect.value = entryToEdit.districtKey;
+             populateUpazilas(entryToEdit.divisionKey, entryToEdit.districtKey, editUpazilaSelect);
+             editUpazilaSelect.value = entryToEdit.upazila;
+
+             personNameInput.value = entryToEdit.personName;
+             officeNameInput.value = entryToEdit.officeName;
+             mobileNumberInput.value = entryToEdit.mobileNumber;
+             emailAddressInput.value = entryToEdit.emailAddress;
+             validateForm();
+        }
+
+        // --- Event Listeners ---
+        editDivisionSelect.addEventListener('change', () => populateDistricts(editDivisionSelect.value, editDistrictSelect, editUpazilaSelect));
+        editDistrictSelect.addEventListener('change', () => populateUpazilas(editDivisionSelect.value, editDistrictSelect.value, editUpazilaSelect));
+        
+        const allInputs = [serviceTypeSelect, editDivisionSelect, editDistrictSelect, editUpazilaSelect, personNameInput, officeNameInput, mobileNumberInput, emailAddressInput];
+        allInputs.forEach(input => input.addEventListener('input', validateForm));
+        allInputs.forEach(select => select.addEventListener('change', validateForm));
+
+        function validateForm() {
+            const isContactInfoEntered = mobileNumberInput.value.trim() !== "" || emailAddressInput.value.trim() !== "";
+            saveBtn.disabled = !(serviceTypeSelect.value && editDivisionSelect.value && editDistrictSelect.value && editUpazilaSelect.value && personNameInput.value.trim() && officeNameInput.value.trim() && isContactInfoEntered);
+        }
+
+        editForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (saveBtn.disabled) return;
+            
+            const serviceData = {
+                serviceType: serviceTypeSelect.value,
+                name: `${officeNameInput.value} - ${personNameInput.value}`, 
+                phone: mobileNumberInput.value || '', 
+                emailAddress: emailAddressInput.value || '',
+                
+                division: editDivisionSelect.options[editDivisionSelect.selectedIndex].text,
+                district: editDistrictSelect.options[editDistrictSelect.selectedIndex].text,
+                upazila: editUpazilaSelect.value,
+                
+                // সার্চের সুবিধার জন্য Raw Values ও রাখা ভালো
+                divisionKey: editDivisionSelect.value,
+                districtKey: editDistrictSelect.value,
+                
+                address: `${editUpazilaSelect.value}, ${editDistrictSelect.options[editDistrictSelect.selectedIndex].text}`,
+                lastUpdate: new Date().toLocaleDateString('bn-BD'),
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                if (entryToEdit && entryToEdit.id) {
+                    // Update existing
+                    await window.setDoc(window.doc(window.db, "services", entryToEdit.id), serviceData);
+                    alert('তথ্য আপডেট করা হয়েছে!');
+                } else {
+                    // Add new
+                    await window.addDoc(window.collection(window.db, "services"), serviceData);
+                    alert('তথ্য সফলভাবে যোগ করা হয়েছে!');
+                }
+                
+                // Clear context and redirect
+                localStorage.removeItem('entryToEdit');
+                localStorage.removeItem('passkeyActionContext');
+                window.location.href = 'cont_search_result.html'; // বা index.html
+
+            } catch (error) {
+                console.error("Error saving document: ", error);
+                alert("তথ্য সেভ করতে সমস্যা হয়েছে।");
+            }
+        });
+    });
+    </script>
+</body>
+</html>

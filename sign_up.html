@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সাইন আপ - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // গ্লোবাল ভেরিয়েবল সেট করা
+      window.auth = auth;
+      window.db = db;
+      window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+      window.setDoc = setDoc;
+      window.doc = doc;
+    </script>
+
+    <style>
+        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px 0; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .form-container { background: var(--white); border-radius: 15px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); animation: slideUp 0.4s ease; position: relative; }
+        .form-container h2 { text-align: center; margin-bottom: 25px; color: var(--text); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; transition: var(--transition); }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.2); }
+        .form-footer { text-align: center; margin-top: 20px; }
+        .form-footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .form-footer a:hover { text-decoration: underline; }
+        .social-login { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .social-btn { display: flex; align-items: center; justify-content: center; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: var(--transition); width: 150px; }
+        .social-btn:hover { background-color: #f5f5f5; }
+        .social-btn i { margin-right: 10px; font-size: 1.2rem; }
+        .google-btn i { color: #DB4437; }
+        .facebook-btn i { color: #4267B2; }
+        .divider { text-align: center; margin: 20px 0; color: #aaa; display: flex; align-items: center; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #ddd; }
+        .divider:not(:empty)::before { margin-right: .25em; }
+        .divider:not(:empty)::after { margin-left: .25em; }
+        .home-link { position: absolute; top: 15px; left: 20px; font-size: 1.2rem; color: var(--text-light); text-decoration: none; transition: var(--transition); }
+        .home-link:hover { color: var(--primary); }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- home link changed to index.html for standard routing -->
+        <a href="index.html" class="home-link" title="হোম পেজে ফিরে যান"><i class="fas fa-arrow-left"></i></a>
+        <h2>সাইন আপ</h2>
+        <div class="social-login">
+            <button class="social-btn google-btn"><i class="fab fa-google"></i> Google</button>
+            <button class="social-btn facebook-btn"><i class="fab fa-facebook-f"></i> Facebook</button>
+        </div>
+        <div class="divider">or</div>
+        <form id="signupForm">
+            <div class="form-group"><label for="signupName">পুরো নাম</label><input type="text" id="signupName" class="form-control" placeholder="আপনার পুরো নাম দিন" required></div>
+            <div class="form-group"><label for="signupEmail">ইমেইল</label><input type="email" id="signupEmail" class="form-control" placeholder="আপনার ইমেইল দিন" required></div>
+            <div class="form-group"><label for="signupPassword">পাসওয়ার্ড</label><input type="password" id="signupPassword" class="form-control" placeholder="পাসওয়ার্ড তৈরি করুন" required></div>
+            <div class="form-group"><label for="signupMobile">মোবাইল নম্বর</label><input type="tel" id="signupMobile" class="form-control" placeholder="আপনার মোবাইল নম্বর দিন" required></div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">সাইন আপ</button>
+            <div class="form-footer">
+                <p>ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="log_in.html">লগ ইন করুন</a></p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const mobile = document.getElementById('signupMobile').value;
+
+            try {
+                // ১. ফায়ারবেজ অথেন্টিকেশনে ইউজার তৈরি করা
+                const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                const user = userCredential.user;
+
+                // ২. ফায়ারস্টোর ডাটাবেজে ইউজারের বিস্তারিত তথ্য সেভ করা
+                await window.setDoc(window.doc(window.db, "users", user.uid), {
+                    name: name,
+                    email: email,
+                    mobile: mobile,
+                    uid: user.uid,
+                    isPublished: false, // ডিফল্টভাবে প্রোফাইল প্রাইভেট থাকবে
+                    createdAt: new Date().toISOString()
+                });
+
+                alert('সাইন আপ সফলভাবে সম্পন্ন হয়েছে!');
+                
+                // সাইন আপ সফল হলে হোম পেজে রিডাইরেক্ট
+                window.location.href = 'index.html';
+
+            } catch (error) {
+                console.error("Error signing up:", error);
+                let message = "সাইন আপ ব্যর্থ হয়েছে।";
+                if (error.code === 'auth/email-already-in-use') {
+                    message = "এই ইমেইলটি ইতিমধ্যে ব্যবহৃত হয়েছে।";
+                } else if (error.code === 'auth/weak-password') {
+                    message = "পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।";
+                }
+                alert(message);
+            }
+        });
+    </script>
+</body>
+</html>

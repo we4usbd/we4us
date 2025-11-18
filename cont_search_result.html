@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অনুসন্ধানের ফলাফল - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getFirestore, collection, query, where, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // গ্লোবাল ভেরিয়েবল
+      window.db = db;
+      window.collection = collection;
+      window.query = query;
+      window.where = where;
+      window.getDocs = getDocs;
+      window.doc = doc;
+      window.deleteDoc = deleteDoc;
+    </script>
+
+    <style>
+        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        :root { --primary: #e53935; --primary-dark: #c62828; --secondary: #f5f5f5; --text: #333; --text-light: #666; --white: #fff; --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); --transition: all 0.3s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:not([disabled]):hover { background: var(--primary); color: var(--white); }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 40px; color: var(--text); }
+        header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none; }
+        .logo i { font-size: 1.8rem; }
+        .page-view { display: block; min-height: 100vh; }
+        .results-page-view .header { padding: 15px 0; box-shadow: var(--shadow); }
+        .results-section { padding: 40px 0; }
+        .search-query { text-align: center; font-size: 1.2rem; margin-bottom: 40px; color: var(--text-light); background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: var(--shadow); }
+        .results-section .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+        .result-card { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); padding: 25px; transition: var(--transition); display: flex; flex-direction: column; }
+        .result-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .result-card .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .edit-result-btn { padding: 5px 10px; font-size: 0.8rem; border-radius: 15px; flex-shrink: 0; margin-top: -5px; }
+        .result-card .result-name { font-size: 1.3rem; font-weight: 600; color: var(--text); margin-right: 15px; }
+        .result-card .result-info { list-style: none; flex-grow: 1; }
+        .result-card .result-info li { margin-bottom: 12px; color: var(--text-light); display: flex; align-items: center; gap: 10px; }
+        .result-card .result-info i { color: var(--primary); width: 20px; text-align: center; }
+        .no-results { text-align: center; font-size: 1.5rem; color: var(--text-light); padding: 50px; background: var(--white); border-radius: 10px; box-shadow: var(--shadow); grid-column: 1 / -1; }
+        .passkey-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: none; justify-content: center; align-items: center; animation: fadeIn 0.5s ease; }
+        .passkey-container { background-color: var(--white); border-radius: 30px; box-shadow: var(--shadow); padding: 40px; width: 100%; max-width: 400px; text-align: center; position: relative; }
+        .passkey-container .close-btn { position: absolute; top: 15px; right: 15px; padding: 0; width: 35px; height: 35px; line-height: 35px; border-radius: 50%; font-size: 1.2rem; background: transparent; border: none; color: var(--text-light); cursor: pointer; z-index: 10; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
+        .passkey-container .close-btn:hover { color: var(--primary); background: var(--secondary); }
+        .passkey-title { font-size: 1.8rem; margin-bottom: 20px; }
+        #passkey-input { width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 10px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
+        #passkey-error { color: var(--primary); margin-top: 15px; font-weight: 500; height: 20px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @media (max-width: 768px) { .section-title { font-size: 2rem; } }
+    </style>
+</head>
+<body>
+    <!-- Results Page View -->
+    <div class="page-view" id="resultsPageView">
+        <header class="header">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="logo"><i class="fas fa-tint"></i><span>আমাদের জন্য আমরা</span></div>
+                <a href="search_bar.html" id="newSearchBtn" class="btn btn-primary"><i class="fas fa-search"></i> নতুন অনুসন্ধান</a>
+            </div>
+        </header>
+        <main>
+            <section class="results-section"><div class="container"><h1 class="section-title">অনুসন্ধানের ফলাফল</h1><p class="search-query" id="searchQueryText"></p><div class="results-grid" id="resultsGrid"></div></div></section>
+        </main>
+    </div>
+
+    <!-- Pass Key Overlay (for Edit/Delete) -->
+    <div class="passkey-overlay" id="passkeyOverlay">
+        <div class="passkey-container">
+            <button id="closePasskeyBtn" class="close-btn" title="ফিরে যান"><i class="fas fa-times"></i></button>
+            <h1 class="passkey-title">Pass Key দিন</h1>
+            <p style="color: var(--text-light); margin-bottom: 20px;">প্রবেশের জন্য ৬-সংখ্যার key -টি লিখুন।</p>
+            <form id="passkeyForm">
+                <input type="password" id="passkey-input" maxlength="6" autocomplete="off" placeholder="______" required>
+                <div id="passkey-error"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">প্রবেশ করুন</button>
+                
+                <p style="margin-top: 20px; font-size: 0.9rem; text-align: center;">
+                    <a href="https://wa.me/message/JXOKUYORFYPUK1" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fab fa-whatsapp"></i> এডমিনের থেকে Pass key নিন
+                    </a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const CORRECT_PASS_KEY = "431564";
+
+        // DOM Elements
+        const searchQueryText = document.getElementById('searchQueryText');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const passkeyOverlay = document.getElementById('passkeyOverlay');
+        const passkeyForm = document.getElementById('passkeyForm');
+        const passkeyInput = document.getElementById('passkey-input');
+        const passkeyError = document.getElementById('passkey-error');
+        const closePasskeyBtn = document.getElementById('closePasskeyBtn');
+        
+        // Search Context from LocalStorage (passed from search page)
+        let searchContext = JSON.parse(localStorage.getItem('searchContext') || '{}');
+
+        const copyToClipboard = (text) => {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert(`যোগাযোগের তথ্য কপি করা হয়েছে: ${text}`);
+                }).catch(err => {
+                    alert('কপি করতে ব্যর্থ।');
+                });
+            } else {
+                alert('কপি করতে ব্যর্থ।');
+            }
+        };
+        
+        // --- Display Logic with Firebase ---
+        async function displayResults() {
+            if (!searchContext.divisionName) {
+                window.location.href = 'index.html'; 
+                return;
+            }
+
+            searchQueryText.innerHTML = `অনুসন্ধান: সার্ভিস- <strong style="color: var(--primary);">${searchContext.currentService}</strong>, বিভাগ- <strong>${searchContext.divisionName}</strong>, জেলা- <strong>${searchContext.districtName}</strong>, উপজেলা- <strong>${searchContext.upazila}</strong>`;
+            resultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">তথ্য খোঁজা হচ্ছে...</p>';
+
+            try {
+                // ফায়ারবেজ কুয়েরি
+                const q = window.query(
+                    window.collection(window.db, "services"), 
+                    window.where("serviceType", "==", searchContext.currentService),
+                    window.where("division", "==", searchContext.divisionName),
+                    window.where("district", "==", searchContext.districtName),
+                    window.where("upazila", "==", searchContext.upazila)
+                );
+
+                const querySnapshot = await window.getDocs(q);
+                resultsGrid.innerHTML = '';
+
+                if (querySnapshot.empty) {
+                    resultsGrid.innerHTML = `<div class="no-results">দুঃখিত, কোনো তথ্য পাওয়া যায়নি।</div>`;
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const s = doc.data();
+                        const docId = doc.id; // ডকুমেন্টের আইডি
+
+                        const hasPhone = s.phone && s.phone.trim() !== '';
+                        const hasEmail = s.emailAddress && s.emailAddress.trim() !== '';
+                        
+                        let contactList = '';
+                        if (hasPhone) { contactList += `<li><i class="fas fa-phone"></i><span>${s.phone}</span></li>`; }
+                        if (hasEmail) { contactList += `<li><i class="fas fa-envelope"></i><span>${s.emailAddress}</span></li>`; }
+                        contactList += `<li><i class="fas fa-map-marker-alt"></i>${s.address}</li>`;
+                        
+                        const contactType = hasPhone ? 'phone' : (hasEmail ? 'email' : 'none');
+                        const contactValue = hasPhone ? s.phone : (hasEmail ? s.emailAddress : '');
+                        
+                        const contactButton = (hasPhone || hasEmail) ? `
+                            <a href="${hasPhone ? 'tel:' + s.phone : 'javascript:void(0)'}" 
+                               class="btn btn-primary contact-now-btn" 
+                               data-contact-type="${contactType}"
+                               data-contact-value="${contactValue}"
+                               style="width: 100%; margin-top: 15px;">
+                               <i class="${hasPhone ? 'fas fa-phone' : 'fas fa-envelope'}"></i> যোগাযোগ করুন
+                            </a>
+                        ` : '';
+
+                        const cardHTML = `
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <div class="result-name">${s.name}</div>
+                                    <div>
+                                        <button class="btn btn-outline edit-result-btn" title="Edit" data-id="${docId}" data-action="edit"><i class="fas fa-edit"></i> এডিট</button>
+                                        <button class="btn btn-primary edit-result-btn" title="Delete" data-id="${docId}" data-action="delete" style="background-color: var(--primary-dark); margin-left: 10px;"><i class="fas fa-trash"></i> ডিলেট</button>
+                                    </div>
+                                </div>
+                                <ul class="result-info">
+                                    ${contactList}
+                                </ul>
+                                ${contactButton}
+                                <p style="text-align: right; margin-top: 15px; font-size: 0.85rem; color: var(--text-light);">
+                                    শেষ আপডেট - <strong>${s.lastUpdate || 'N/A'}</strong>
+                                </p>
+                            </div>
+                        `;
+                        resultsGrid.innerHTML += cardHTML;
+                    });
+                }
+            } catch (error) {
+                console.error("Error getting documents: ", error);
+                // ইনডেক্স এরর হ্যান্ডলিং
+                if(error.message.includes("indexes")) {
+                    console.log("Please create an index in Firestore console using the link in the error above.");
+                }
+                resultsGrid.innerHTML = `<div class="no-results">তথ্য লোড করতে সমস্যা হয়েছে।</div>`;
+            }
+        }
+        
+        displayResults();
+
+        // --- Event Listeners ---
+        
+        // Delegate for Edit/Delete Button on Result Cards
+        resultsGrid.addEventListener('click', async (e) => {
+            const actionButton = e.target.closest('.edit-result-btn');
+            const contactBtn = e.target.closest('.contact-now-btn');
+
+            if (contactBtn) {
+                const type = contactBtn.getAttribute('data-contact-type');
+                const value = contactBtn.getAttribute('data-contact-value');
+                if (type === 'phone' || type === 'email') {
+                    copyToClipboard(value);
+                    e.preventDefault(); 
+                }
+                return;
+            }
+            
+            if (actionButton) {
+                const docId = actionButton.getAttribute('data-id');
+                const action = actionButton.getAttribute('data-action');
+                
+                // Store context for Passkey Action
+                const context = {
+                    type: action,
+                    docId: docId
+                };
+                
+                // যদি এডিট হয়, তবে ডাটা ফেচ করে স্টোরেজে রাখা যাতে এডিট পেজে অটোফিল হয়
+                if (action === 'edit') {
+                    // এখানে আমরা সিম্পলিসিটির জন্য docId পাস করছি, এডিট পেজ আইডি দিয়ে ডাটা লোড করবে না (কারণ এডিট পেজটি আগে localStorage দিয়ে ডিজাইন করা ছিল)
+                    // তাই আমরা এখানে DOM থেকে বা Firebase থেকে ডাটা নিয়ে `entryToEdit` এ রাখব।
+                    // বেটার অপশন: Firebase থেকে `getDoc` করে `entryToEdit` সেট করা।
+                    
+                    // কার্ড থেকে বেসিক ডাটা নিয়ে context এ রাখা সম্ভব, কিন্তু সঠিক হলো:
+                    // আমরা এডিট পেজে docId পাস করব এবং এডিট পেজ লোড হওয়ার সময় ডাটা আনবে।
+                    // কিন্তু আপনার বর্তমান `cont_edit_add.html` ফায়ারবেজে কনভার্ট করেছি। সেখানে `entryToEdit` চেক করা হয়।
+                    
+                    // আমরা এখানে `entryToEdit` এ `id` এবং `type: 'edit'` সেভ করব।
+                    // এডিট পেজে গিয়ে আমরা `id` দিয়ে ডাটা লোড করার লজিক বসাবো বা `searchContext` থেকে ডাটা নিতে পারি।
+                    // সবচেয়ে সহজ: Edit Page এ docId দিয়ে data load করা (যেটা আমি `cont_edit_add.html` এ সেট করে দিয়েছি)।
+                    
+                    // এখানে শুধু id এবং type সেট করুন
+                    localStorage.setItem('entryToEdit', JSON.stringify({ id: docId, type: 'edit' }));
+                } 
+                
+                localStorage.setItem('passkeyActionContext', JSON.stringify(context));
+                passkeyOverlay.style.display = 'flex';
+            }
+        });
+        
+        closePasskeyBtn.addEventListener('click', () => {
+            passkeyOverlay.style.display = 'none';
+            localStorage.removeItem('passkeyActionContext');
+            localStorage.removeItem('entryToEdit');
+            passkeyInput.value = '';
+            passkeyError.textContent = '';
+        });
+
+        // Passkey form submission
+        passkeyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (passkeyInput.value === CORRECT_PASS_KEY) {
+                passkeyInput.value = '';
+                passkeyError.textContent = '';
+                passkeyOverlay.style.display = 'none';
+
+                let actionContext = JSON.parse(localStorage.getItem('passkeyActionContext'));
+                
+                if (actionContext && actionContext.type === 'delete') {
+                    const confirmation = confirm(`আপনি কি নিশ্চিত যে আপনি এই তথ্যটি মুছে ফেলতে চান?`);
+                    
+                    if (confirmation) {
+                        try {
+                            await window.deleteDoc(window.doc(window.db, "services", actionContext.docId));
+                            alert(`তথ্য সফলভাবে মুছে ফেলা হয়েছে!`);
+                            displayResults(); // Refresh display
+                        } catch (error) {
+                            console.error("Error removing document: ", error);
+                            alert("মুছে ফেলতে সমস্যা হয়েছে।");
+                        }
+                    }
+                    localStorage.removeItem('passkeyActionContext');
+
+                } else if (actionContext && actionContext.type === 'edit') {
+                    // Redirect to Edit Page
+                    // `entryToEdit` already set in the click listener
+                    window.location.href = 'cont_edit_add.html';
+                }
+                
+            } else {
+                passkeyError.textContent = 'ভুল Pass Key! আবার চেষ্টা করুন।';
+                passkeyInput.value = '';
+                setTimeout(() => { passkeyError.textContent = ''; }, 3000);
+                localStorage.removeItem('passkeyActionContext');
+                localStorage.removeItem('entryToEdit');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

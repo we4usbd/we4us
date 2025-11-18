@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>জরুরি যোগাযোগ - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- General/Shared Styles (Copied from original) --- */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: var(--white); }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 40px; color: var(--text); }
+        header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none; }
+        .logo i { font-size: 1.8rem; }
+        nav { margin-right: auto; margin-left: 40px; }
+        nav ul { display: flex; list-style: none; gap: 25px; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: var(--transition); position: relative; }
+        nav a:hover { color: var(--primary); }
+        nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
+        nav a:hover::after { width: 100%; }
+        .auth-buttons { display: flex; gap: 15px; }
+        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; margin-left: 20px; }
+        .emergency-section { padding: 80px 0; }
+        .emergency-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .emergency-card { background: var(--white); border-radius: 15px; box-shadow: var(--shadow); padding: 30px; transition: var(--transition); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; }
+        .emergency-card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .emergency-icon { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 20px; }
+        .emergency-card h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--text); }
+        .emergency-card p { color: var(--text-light); margin-bottom: 20px; }
+        .passkey-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: none; justify-content: center; align-items: center; animation: fadeIn 0.5s ease; }
+        .passkey-container { background-color: var(--white); border-radius: 30px; box-shadow: var(--shadow); padding: 40px; width: 100%; max-width: 400px; text-align: center; position: relative; }
+        .passkey-container .close-btn { position: absolute; top: 15px; right: 15px; padding: 0; width: 35px; height: 35px; line-height: 35px; border-radius: 50%; font-size: 1.2rem; background: transparent; border: none; color: var(--text-light); cursor: pointer; z-index: 10; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
+        .passkey-container .close-btn:hover { color: var(--primary); background: var(--secondary); }
+        .passkey-title { font-size: 1.8rem; margin-bottom: 20px; }
+        #passkey-input { width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 10px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
+        #passkey-error { color: var(--primary); margin-top: 15px; font-weight: 500; height: 20px; }
+        footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
+        .footer-column h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 2px; background: var(--primary); }
+        .footer-links { list-style: none; } .footer-links li { margin-bottom: 10px; } .footer-links a { color: #ddd; text-decoration: none; transition: var(--transition); }
+        .footer-links a:hover { color: var(--primary); padding-left: 5px; }
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
+        .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
+        .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 768px) { nav { display: none; } .mobile-menu { display: block; } .section-title { font-size: 2rem; } .emergency-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- Main Emergency Contacts Page -->
+    <div id="emergencyView">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <a href="index.html" class="logo">
+                        <i class="fas fa-tint"></i>
+                        <span>আমাদের জন্য আমরা</span>
+                    </a>
+                    <nav>
+                        <ul>
+                            <li><a href="index.html">হোম</a></li>
+                            <li><a href="#">রক্তদাতা</a></li>
+                            <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li>
+                            <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
+                        </ul>
+                    </nav>
+                    <div class="auth-buttons">
+                        <a href="index.html" class="btn btn-primary">হোম</a>
+                        <button id="addNewBtn" class="btn btn-outline">Add New Contact</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="emergency-section">
+                <div class="container">
+                    <h2 class="section-title">জরুরি যোগাযোগ</h2>
+                    <div class="emergency-container">
+                        <div class="emergency-card" data-service="পুলিশ স্টেশন">
+                            <div class="emergency-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h3>পুলিশ স্টেশন</h3>
+                            <p>নিকটবর্তী পুলিশ স্টেশন খুঁজুন</p>
+                            <button class="btn btn-primary find-service-btn"><i class="fas fa-search"></i> খুঁজুন</button>
+                        </div>
+                        <div class="emergency-card" data-service="হাসপাতাল ও ডাক্তার">
+                            <div class="emergency-icon"><i class="fas fa-hospital"></i></div>
+                            <h3>হাসপাতাল ও ডাক্তার</h3>
+                            <p>নিকটবর্তী হাসপাতাল ও ডাক্তার খুঁজুন</p>
+                            <button class="btn btn-primary find-service-btn"><i class="fas fa-search"></i> খুঁজুন</button>
+                        </div>
+                        <div class="emergency-card" data-service="ফায়ার সার্ভিস">
+                            <div class="emergency-icon"><i class="fas fa-fire-extinguisher"></i></div>
+                            <h3>ফায়ার সার্ভিস</h3>
+                            <p>নিকটবর্তী ফায়ার সার্ভিস স্টেশন খুঁজুন</p>
+                            <button class="btn btn-primary find-service-btn"><i class="fas fa-search"></i> খুঁজুন</button>
+                        </div>
+                        <div class="emergency-card" data-service="এম্বুলেন্স">
+                            <div class="emergency-icon"><i class="fas fa-ambulance"></i></div>
+                            <h3>এম্বুলেন্স</h3>
+                            <p>নিকটবর্তী এম্বুলেন্স সার্ভিস খুঁজুন</p>
+                            <button class="btn btn-primary find-service-btn"><i class="fas fa-search"></i> খুঁজুন</button>
+                        </div>
+                        <div class="emergency-card" data-service="বিদ্যুৎ জোনাল অফিস">
+                            <div class="emergency-icon"><i class="fas fa-bolt"></i></div>
+                            <h3>বিদ্যুৎ জোনাল অফিস</h3>
+                            <p>নিকটবর্তী বিদ্যুৎ জোনাল অফিস খুঁজুন</p>
+                            <button class="btn btn-primary find-service-btn"><i class="fas fa-search"></i> খুঁজুন</button>
+                        </div>
+                        <div class="emergency-card" data-service="গ্যাস ফিলিং স্টেশন">
+                            <div class="emergency-icon"><i class="fas fa-gas-pump"></i></div>
+                            <h3>গ্যাস ফিলিং স্টেশন</h3>
+                            <p>নিকটবর্তী গ্যাস ফিলিং স্টেশন খুঁজুন</p>
+                            <button class="btn btn-primary find-service-btn"><i class="fas fa-search"></i> খুঁজুন</button>
+                        </div>
+                        <div class="emergency-card" data-service="ওয়াসা">
+                            <div class="emergency-icon"><i class="fas fa-tint"></i></div>
+                            <h3>ওয়াসা</h3>
+                            <p>নিকটবর্তী ওয়াসা অফিস খুঁজুন</p>
+                            <button class="btn btn-primary find-service-btn"><i class="fas fa-search"></i> খুঁজুন</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column"><h3>আমাদের জন্য আমরা</h3><p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li><li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li><li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li></ul></div>
+                    <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="#">রক্তদানের নিয়ম</a></li></ul></div>
+                    <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> ঢাকা, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1XXX-XXXXXX</li><li><i class="fas fa-envelope"></i> info@bloodlink.com</li></ul></div>
+                </div>
+                <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Pass Key Overlay (for Add New) -->
+    <div class="passkey-overlay" id="passkeyOverlay">
+        <div class="passkey-container">
+            <button id="closePasskeyBtn" class="close-btn" title="ফিরে যান"><i class="fas fa-times"></i></button>
+            <h1 class="passkey-title">Pass Key দিন</h1>
+            <p style="color: var(--text-light); margin-bottom: 20px;">প্রবেশের জন্য ৬-সংখ্যার key -টি লিখুন।</p>
+            <form id="passkeyForm">
+                <input type="password" id="passkey-input" maxlength="6" autocomplete="off" placeholder="______" required>
+                <div id="passkey-error"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">প্রবেশ করুন</button>
+                
+                <p style="margin-top: 20px; font-size: 0.9rem; text-align: center;">
+                    <a href="https://wa.me/message/JXOKUYORFYPUK1" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fab fa-whatsapp"></i> এডমিনের থেকে Pass key নিন
+                    </a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const CORRECT_PASS_KEY = "431564";
+        
+        const findServiceBtns = document.querySelectorAll('.find-service-btn');
+        const addNewBtn = document.getElementById('addNewBtn');
+        const passkeyOverlay = document.getElementById('passkeyOverlay');
+        const passkeyForm = document.getElementById('passkeyForm');
+        const passkeyInput = document.getElementById('passkey-input');
+        const passkeyError = document.getElementById('passkey-error');
+        const closePasskeyBtn = document.getElementById('closePasskeyBtn');
+
+        // --- Main Page Logic ---
+        findServiceBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const currentService = this.closest('.emergency-card').getAttribute('data-service');
+                localStorage.setItem('currentService', currentService); // Save context only for the next page
+                window.location.href = 'search_page.html';
+            });
+        });
+
+        // --- Pass Key Overlay Logic for Add New ---
+        addNewBtn.addEventListener('click', () => {
+            // Clear any edit context, setting type to 'add'
+            localStorage.setItem('passkeyActionContext', JSON.stringify({ type: 'add' }));
+            localStorage.removeItem('entryToEdit'); 
+            passkeyOverlay.style.display = 'flex';
+        });
+        
+        closePasskeyBtn.addEventListener('click', () => {
+            passkeyOverlay.style.display = 'none';
+            localStorage.removeItem('passkeyActionContext');
+            passkeyInput.value = '';
+            passkeyError.textContent = '';
+        });
+
+        passkeyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (passkeyInput.value === CORRECT_PASS_KEY) {
+                passkeyInput.value = '';
+                passkeyError.textContent = '';
+                passkeyOverlay.style.display = 'none';
+                
+                // Redirection to Edit Page for 'Add New'
+                window.location.href = 'cont_edit_add.html';
+                
+            } else {
+                passkeyError.textContent = 'ভুল Pass Key! আবার চেষ্টা করুন।';
+                passkeyInput.value = '';
+                setTimeout(() => { passkeyError.textContent = ''; }, 3000);
+                localStorage.removeItem('passkeyActionContext'); 
+            }
+        });
+    });
+    </script>
+</body>
+</html>
