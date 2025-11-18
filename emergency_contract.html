@@ -6,7 +6,7 @@
     <title>জরুরি যোগাযোগ - আমাদের জন্য আমরা</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- General/Shared Styles (Copied from original) --- */
+        /* --- General/Shared Styles --- */
         :root {
             --primary: #e53935;
             --primary-dark: #c62828;
@@ -67,7 +67,6 @@
     </style>
 </head>
 <body>
-    <!-- Main Emergency Contacts Page -->
     <div id="emergencyView">
         <header>
             <div class="container">
@@ -153,7 +152,7 @@
                         </div>
                     </div>
                     <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li><li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li><li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li></ul></div>
-                    <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="#">রক্তদানের নিয়ম</a></li></ul></div>
+                    <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="donation_rules.html">রক্তদানের নিয়ম</a></li></ul></div>
                     <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> ঢাকা, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1XXX-XXXXXX</li><li><i class="fas fa-envelope"></i> info@bloodlink.com</li></ul></div>
                 </div>
                 <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
@@ -198,7 +197,8 @@
             btn.addEventListener('click', function() {
                 const currentService = this.closest('.emergency-card').getAttribute('data-service');
                 localStorage.setItem('currentService', currentService); // Save context only for the next page
-                window.location.href = 'search_page.html';
+                // --- FIX: Corrected redirection link ---
+                window.location.href = 'cont_search.html';
             });
         });
 
