@@ -3,8 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>রক্তদানের নিয়মাবলী - আমাদের জন্য আমরা</title>
+    <title>আমাদের জন্য আমরা - রক্তদান প্ল্যাটফর্ম</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK এবং কনফিগারেশন -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
+        authDomain: "we4usnur.firebaseapp.com",
+        projectId: "we4usnur",
+        storageBucket: "we4usnur.firebasestorage.app",
+        messagingSenderId: "1069907132834",
+        appId: "1:1069907132834:web:f6aec92fc61c413767f2fb",
+        measurementId: "G-LZCCHNFRSN"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      window.auth = auth;
+      window.db = db;
+      window.collection = collection;
+      window.getDocs = getDocs;
+      window.query = query;
+      window.where = where;
+      window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+
     <style>
         /* --- General/Shared Styles --- */
         :root {
@@ -17,95 +47,68 @@
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: var(--white); }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 40px; color: var(--text); }
         
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background-color: var(--secondary);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 40px;
-            color: var(--text);
-        }
-        
-        header {
-            background-color: var(--white);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 1.5rem;
-            text-decoration: none;
-        }
-
+        /* Header Styles */
+        #homeView header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; animation: slideDown 0.5s ease; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none; }
         .logo i { font-size: 1.8rem; }
         
+        /* Navigation */
         nav ul { display: flex; list-style: none; gap: 25px; }
         nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: var(--transition); position: relative; }
         nav a:hover { color: var(--primary); }
         nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
         nav a:hover::after { width: 100%; }
-
+        
+        /* Buttons & Menu */
+        .header-actions-right { display: flex; align-items: center; gap: 15px; }
+        .auth-buttons { display: flex; gap: 15px; }
+        
+        .profile-icon { font-size: 2rem; color: var(--primary); text-decoration: none; transition: var(--transition); }
+        .profile-icon:hover { color: var(--primary-dark); }
+        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; }
+        
+        /* Hero Section */
+        .hero { background: linear-gradient(135deg, rgba(229, 57, 53, 0.9), rgba(198, 40, 40, 0.9)), url('https://images.unsplash.com/photo-1579154204601-01588f351e67?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'); background-size: cover; background-position: center; color: var(--white); padding: 100px 0; text-align: center; animation: fadeIn 1s ease; }
+        .hero-content { max-width: 800px; margin: 0 auto; }
+        .hero h1 { font-size: 3rem; margin-bottom: 20px; animation: slideUp 0.8s ease; }
+        .hero p { font-size: 1.2rem; margin-bottom: 30px; animation: slideUp 1s ease; }
+        .hero-buttons { display: flex; justify-content: center; gap: 20px; animation: slideUp 1.2s ease; }
+        
+        /* Search Box Trigger */
+        .search-section-trigger { background-color: var(--white); padding: 40px 0; margin-top: -50px; border-radius: 15px; box-shadow: var(--shadow); position: relative; z-index: 10; animation: slideUp 0.8s ease; cursor: pointer; }
+        .search-container-trigger { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+        .search-box-trigger { display: flex; background: var(--white); border-radius: 50px; overflow: hidden; box-shadow: var(--shadow); }
+        .search-input-trigger { flex: 1; padding: 15px 25px; border: none; outline: none; font-size: 1rem; pointer-events: none; }
+        .search-btn-trigger { background: var(--primary); color: var(--white); border: none; padding: 0 30px; transition: var(--transition); pointer-events: none; }
+        .search-btn-trigger i { font-size: 1.1rem; }
+        
+        /* Donors Grid */
+        .donor-list-section { padding: 60px 0; }
+        .donors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .donor-card { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); padding: 25px; transition: var(--transition); }
+        .donor-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .donor-card .donor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .donor-card .blood-group { background: var(--primary); color: var(--white); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
+        .donor-card .donor-name { font-size: 1.3rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        .donor-card .donor-info { list-style: none; }
+        .donor-card .donor-info li { margin-bottom: 12px; color: var(--text-light); display: flex; align-items: center; gap: 10px; }
+        .donor-card .donor-info i { color: var(--primary); width: 20px; text-align: center; }
+        .copy-icon { margin-left: auto; cursor: pointer; color: var(--text-light); transition: var(--transition); }
+        .copy-icon:hover { color: var(--primary); }
+        
+        /* Footer */
         footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; }
         .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
         .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
@@ -116,189 +119,134 @@
         .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
         .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
         .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
-
-        /* --- Styles for the Rules Page (rulesView) --- */
-        .rules-section {
-            padding: 80px 0;
-        }
-        #rulesView .container {
-             max-width: 1000px;
-        }
-        #rulesView .rules-container {
-            display: flex;
-            flex-direction: column;
-            gap: 80px; /* Space between each rule item */
-        }
-        .rule-item {
-            display: flex;
-            align-items: center;
-            gap: 40px;
-            background-color: var(--white);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .rule-item.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .rule-item:nth-child(even) {
-            flex-direction: row-reverse;
-        }
-        .rule-image {
-            flex-shrink: 0;
-            width: 300px;
-            height: 220px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            background-color: #f0f4f8; /* A light background for images */
-        }
-        .rule-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Changed to cover to fill the container properly */
-            transition: transform 0.4s ease;
-        }
-        .rule-item:hover .rule-image img {
-            transform: scale(1.08); /* Slightly more zoom for cartoons */
-        }
-        .rule-text h3 {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .rule-text p {
-            font-size: 1.1rem;
-            color: var(--text-light);
-            line-height: 1.7;
-        }
-        .rule-text strong {
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-        .nav-link-active { 
-            color: var(--primary); 
-            font-weight: 700; 
-        }
-        .nav-link-active::after { 
-            width: 100%; 
-        }
-
-        /* --- Animations --- */
+        
+        /* Mobile Menu */
+        .nav-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1100; }
+        .mobile-nav-window { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%); display: flex; align-items: center; gap: 5px; background: rgba(110, 100, 100, 0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.18); padding: 10px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 1200; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .mobile-nav-window.open { transform: translateX(-50%) translateY(0); }
+        .mobile-nav-window ul { list-style: none; display: flex; flex-direction: row; gap: 8px; margin: 0; padding: 0; }
+        .mobile-nav-window a { display: block; background: var(--white); color: var(--text); padding: 8px 16px; border-radius: 30px; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap; transition: var(--transition); }
+        .mobile-nav-window a:hover { background-color: #f0f0f0; transform: translateY(-1px); }
+        .close-mobile-nav { cursor: pointer; color: #f0f0f0; font-size: 1.8rem; font-weight: 400; line-height: 1; padding: 0 8px; font-family: Arial, sans-serif; transition: color 0.3s ease; }
+        .close-mobile-nav:hover { color: var(--white); }
+        
+        /* Animations */
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes cardFadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        /* --- Responsive Styles --- */
+        /* Responsive Styles */
+        @media (max-width: 992px) { 
+            .donors-grid { grid-template-columns: repeat(2, 1fr); } 
+            .hero h1 { font-size: 2.5rem; }
+            /* Hide desktop nav */
+            nav { display: none; } 
+            .mobile-menu { display: block; }
+        }
+
         @media (max-width: 768px) { 
-            .rule-item, .rule-item:nth-child(even) { flex-direction: column; padding: 25px; gap: 25px; }
-            .rule-image { width: 100%; height: 200px; }
-            .rule-text h3 { font-size: 1.5rem; }
-            .rule-text p { font-size: 1rem; }
-            .header-content nav { display: none; }
+            .donors-grid { grid-template-columns: 1fr; } 
+            .hero h1 { font-size: 2rem; } 
+            .hero p { font-size: 1rem; } 
+            .hero-buttons { flex-direction: column; align-items: center; } 
+            .search-box-trigger { flex-direction: column; border-radius: 15px; } 
+            .search-input-trigger { border-radius: 15px 15px 0 0; } 
+            .search-btn-trigger { border-radius: 0 0 15px 15px; padding: 15px; } 
+        }
+
+        /* Mobile Specific Styles for Auth Buttons */
+        @media (max-width: 992px) {
+            .header-actions-right {
+                gap: 10px;
+            }
+            
+            .auth-buttons .btn {
+                padding: 6px 12px; /* ছোট প্যাডিং */
+                font-size: 0.8rem; /* ছোট ফন্ট */
+                border-radius: 20px;
+                white-space: nowrap; /* টেক্সট যেন নিচে না নামে */
+            }
+
+            .logo span {
+                font-size: 1.1rem; /* লোগো টেক্সট একটু ছোট করা যাতে বাটন ধরে */
+            }
+        }
+        
+        /* আরও ছোট ডিভাইসের জন্য */
+        @media (max-width: 400px) {
+            .logo span { display: none; } /* খুব ছোট স্ক্রিনে লোগো টেক্সট লুকানো */
+            .logo i { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Rules Page Content (Rules View) -->
-    <div id="rulesView">
+    <div id="homeView">
         <header>
             <div class="container">
                 <div class="header-content">
                     <a href="index.html" class="logo"> <i class="fas fa-tint"></i> <span>আমাদের জন্য আমরা</span> </a>
                     <nav>
                         <ul>
-                             <li><a href="index.html">হোম</a></li>
-                             <li><a href="donation_rules.html" class="nav-link-active">রক্তদানের নিয়ম</a></li>
-                             <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li>
+                            <li><a href="#home">হোম</a></li>
+                            <li><a href="#donors">রক্তদাতা</a></li>
+                            <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li>
+                            <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
                         </ul>
                     </nav>
-                    <a href="index.html" class="btn btn-primary">হোম</a>
+                    <div class="header-actions-right">
+                        <!-- Desktop/Mobile Auth Button -->
+                        <div class="auth-buttons">
+                            <a href="log_in.html" class="btn btn-primary">লগ ইন</a>
+                        </div>
+                        <div class="mobile-menu"> <i class="fas fa-bars"></i> </div>
+                    </div>
                 </div>
             </div>
         </header>
 
+        <div class="nav-overlay" id="navOverlay"></div>
+        <div class="mobile-nav-window" id="mobileNavWindow">
+            <ul id="mobileNavList">
+                <li><a href="#home">হোম</a></li> 
+                <li><a href="#donors">রক্তদাতা</a></li> 
+                <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li> 
+                <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
+                <!-- JS will append Auth link here -->
+            </ul>
+            <div class="close-mobile-nav" id="closeMobileNav">&times;</div>
+        </div>
+
+        <section class="hero" id="home">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>জীবন বাঁচাতে রক্ত দিন</h1>
+                    <p><b>amader-jonno-amra.com</b> -এ যোগ দিন এবং জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করুন। আপনার একটি রক্তদান একটি জীবন বাঁচাতে পারে।</p>
+                    <div class="hero-buttons">
+                        <a href="search_bar.html" class="btn btn-primary" id="findBloodBtn">রক্ত খুঁজুন</a>
+                        <a href="emergency_contract.html" class="btn btn-outline" style="background: rgba(255,255,255,0.2); color: white; border-color: white;">জরুরি যোগাযোগ</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="search-section-trigger" id="searchSectionTrigger">
+            <div class="search-container-trigger">
+                <div class="search-box-trigger">
+                    <input type="text" class="search-input-trigger" placeholder="রক্তের গ্রুপ, অবস্থান বা শহর লিখুন...">
+                    <button class="search-btn-trigger"><i class="fas fa-search"></i> খুঁজুন</button>
+                </div>
+            </div>
+        </section>
+
         <main>
-            <section class="rules-section">
+            <section class="donor-list-section" id="donors">
                 <div class="container">
-                    <h2 class="section-title">রক্তদানের পূর্ববর্তী ও পরবর্তী নিয়মাবলী</h2>
-
-                    <div class="rules-container">
-                        
-                        <!-- Rule 1 -->
-                        <div class="rule-item">
-                            <div class="rule-image">
-                                <img src="https://cdni.iconscout.com/illustration/premium/thumb/blood-donor-5629903-4695029.png" alt="সাধারণ যোগ্যতা কার্টুন">
-                            </div>
-                            <div class="rule-text">
-                                <h3><i class="fas fa-heartbeat"></i>সাধারণ যোগ্যতা</h3>
-                                <p>রক্তদাতার বয়স <strong>১৮ থেকে ৬০ বছরের মধ্যে</strong> হতে হবে। পুরুষের সর্বনিম্ন ওজন <strong>৫০ কেজি</strong> এবং নারীদের ক্ষেত্রে সর্বনিম্ন ওজন <strong>৪৫ কেজি</strong> হতে হবে। রক্তদানের সময় <strong>রক্তচাপ ও শরীরের তাপমাত্রা স্বাভাবিক</strong> থাকতে হবে।</p>
-                            </div>
-                        </div>
-
-                        <!-- Rule 2 -->
-                        <div class="rule-item">
-                            <div class="rule-image">
-                                <img src="https://i.ibb.co/KxmcVnbK/person-enjoys-vibrant-meal-surrounded-by-variety-fresh-fruits-vegetables-ready-dive-into-healthy-lif.jpg" alt="স্বাস্থ্যকর খাবার কার্টুন">
-                            </div>
-                            <div class="rule-text">
-                                <h3><i class="fas fa-utensils"></i> রক্তদানের পূর্বে</h3>
-                                <p>রক্তদানের আগে <strong>স্বাস্থ্যকর ও হালকা খাবার</strong> গ্রহণ করুন, বিশেষ করে আয়রন সমৃদ্ধ খাবার। <strong>পর্যাপ্ত পরিমাণে পানি ও তরল</strong> পান করুন। রক্তদানের অন্তত <strong>৬ ঘণ্টা আগে ধূমপান ও অ্যালকোহল গ্রহণ থেকে বিরত</strong> থাকুন।</p>
-                            </div>
-                        </div>
-
-                        <!-- Rule 3 -->
-                        <div class="rule-item">
-                            <div class="rule-image">
-                                <img src="https://i.ibb.co/vxbvjfZZ/Screenshot-2025-11-07-18-34-51-547-com-android-chrome-edit.jpg" alt="পর্যাপ্ত ঘুম কার্টুন">
-                            </div>
-                            <div class="rule-text">
-                                <h3><i class="fas fa-bed"></i> পর্যাপ্ত বিশ্রাম</h3>
-                                <p>রক্তদানের আগের রাতে <strong>কমপক্ষে ৬-৮ ঘণ্টা ঘুমানো</strong> অত্যন্ত জরুরি। পর্যাপ্ত বিশ্রাম শরীরকে রক্তদানের জন্য প্রস্তুত করে এবং রক্তদানের পরে ক্লান্তি বা দুর্বলতা অনুভব করার সম্ভাবনা কমিয়ে দেয়।</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Rule 4 -->
-                        <div class="rule-item">
-                            <div class="rule-image">
-                                <img src="https://i.ibb.co/Xxn2G1bx/Screenshot-2025-11-07-18-37-41-097-com-android-chrome-edit.jpg" alt="অসুস্থতা কার্টুন">
-                            </div>
-                            <div class="rule-text">
-                                <h3><i class="fas fa-notes-medical"></i> শারীরিক অসুস্থতা</h3>
-                                <p><strong>জ্বর, সর্দি-কাশি বা অন্য কোনো সংক্রমণে আক্রান্ত</strong> অবস্থায় রক্তদান করা যাবে না। এছাড়াও, <strong>অ্যান্টিবায়োটিক গ্রহণ করলে</strong>, বড় কোনো সার্জারি হলে, বা গত এক বছরের মধ্যে জন্ডিস হলে রক্তদান থেকে বিরত থাকতে হবে।</p>
-                            </div>
-                        </div>
-
-                        <!-- Rule 5 -->
-                        <div class="rule-item">
-                            <div class="rule-image">
-                                <img src="https://cdni.iconscout.com/illustration/premium/thumb/man-relaxing-on-the-chair-and-reading-a-book-3488421-2922434.png" alt="রক্তদানের পর বিশ্রাম কার্টুন">
-                            </div>
-                            <div class="rule-text">
-                                <h3><i class="fas fa-chair"></i> রক্তদানের পরে</h3>
-                                <p>রক্তদানের পর <strong>১০-১৫ মিনিট বিশ্রাম</strong> নিন। <strong>প্রচুর পরিমাণে পানি ও জুস</strong> পান করুন। अगले <strong>২৪ ঘণ্টা পর্যন্ত ভারী ব্যায়াম বা কঠোর শারীরিক পরিশ্রম</strong> থেকে বিরত থাকুন। মাথা ঘোরালে বা অসুস্থ বোধ করলে শুয়ে পড়ুন।</p>
-                            </div>
-                        </div>
-
-                        <!-- Rule 6 -->
-                        <div class="rule-item">
-                            <div class="rule-image">
-                                <img src="https://i.ibb.co/FL0kpmxx/blood-donation-2d-isolated-illustration-man-in-chair-on-blood-transfusion-donor-with-smiling-nurse-f.jpg" alt="পরবর্তী রক্তদান কার্টুন">
-                            </div>
-                            <div class="rule-text">
-                                <h3><i class="fas fa-calendar-alt"></i> পরবর্তী রক্তদানের সময়</h3>
-                                <p>একজন সুস্থ পুরুষ প্রতি <strong>৩ মাস পর পর</strong> এবং একজন সুস্থ নারী প্রতি <strong>৪ মাস পর পর</strong> রক্তদান করতে পারেন। নিয়মিত রক্তদান শরীরকে সুস্থ রাখতে সাহায্য করে এবং অন্যের জীবন বাঁচাতে গুরুত্বপূর্ণ ভূমিকা রাখে।</p>
-                            </div>
-                        </div>
-
+                    <h2 class="section-title">রক্তদাতাদের তালিকা</h2>
+                    <div class="donors-grid" id="mainDonorsGrid">
+                        <p style="grid-column: 1/-1; text-align: center;">লোড হচ্ছে...</p>
                     </div>
                 </div>
             </section>
@@ -308,7 +256,7 @@
             <div class="container">
                 <div class="footer-content">
                     <div class="footer-column"><h3>আমাদের জন্য আমরা</h3><p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p><div class="social-links"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a></div></div>
-                    <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li><li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li><li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li></ul></div>
+                    <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="#home">হোম</a></li><li><a href="#donors">রক্তদাতা</a></li><li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li><li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li></ul></div>
                     <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="donation_rules.html">রক্তদানের নিয়ম</a></li></ul></div>
                     <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> ঢাকা, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1XXX-XXXXXX</li><li><i class="fas fa-envelope"></i> info@bloodlink.com</li></ul></div>
                 </div>
@@ -319,22 +267,150 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Trigger animation for rule items when they scroll into view
-            const ruleItems = document.querySelectorAll('.rule-item');
-            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.2 };
+            const mobileMenuIcon = document.querySelector('.mobile-menu');
+            const mobileNavWindow = document.getElementById('mobileNavWindow');
+            const closeMobileNavBtn = document.getElementById('closeMobileNav');
+            const navOverlay = document.getElementById('navOverlay');
+            const mobileNavLinks = mobileNavWindow.querySelectorAll('a');
             
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
+            // Auth Elements
+            const authButtonsContainer = document.querySelector('.auth-buttons');
+            const mobileNavList = document.getElementById('mobileNavList');
 
-            ruleItems.forEach(item => {
-                observer.observe(item);
+            const locationData = { "barishal": { "name": "বরিশাল" }, "chattogram": { "name": "চট্টগ্রাম" }, "dhaka": { "name": "ঢাকা" }, "khulna": { "name": "খুলনা" }, "mymensingh": { "name": "ময়মনসিংহ" }, "rajshahi": { "name": "রাজশাহী" }, "rangpur": { "name": "রংপুর" }, "sylhet": { "name": "সিলেট" } };
+
+            // Auth State Check & UI Update
+            window.onAuthStateChanged(window.auth, (user) => {
+                // Remove any existing mobile auth link to prevent duplicates
+                const existingAuthLink = document.getElementById('mobileAuthLink');
+                if (existingAuthLink) existingAuthLink.remove();
+                
+                const mobileLi = document.createElement('li');
+                mobileLi.id = 'mobileAuthLink';
+
+                if (user) {
+                    // User is signed in: Show Profile Icon
+                    authButtonsContainer.innerHTML = `<a href="profile.html" class="profile-icon" title="প্রোফাইল"><i class="fas fa-user-circle"></i></a>`;
+                    authButtonsContainer.classList.add('logged-in');
+                    
+                    // Mobile: Profile Link
+                    mobileLi.innerHTML = `<a href="profile.html" style="color: var(--primary); font-weight: 700;">প্রোফাইল</a>`;
+                } else {
+                    // User is signed out: Show Login Button (Small on mobile)
+                    authButtonsContainer.innerHTML = `<a href="log_in.html" class="btn btn-primary">লগ ইন</a>`;
+                    authButtonsContainer.classList.remove('logged-in');
+                    
+                     // Mobile: Login Link
+                     mobileLi.innerHTML = `<a href="log_in.html" style="color: var(--primary); font-weight: 700;">লগ ইন / সাইন আপ</a>`;
+                }
+                mobileNavList.appendChild(mobileLi);
             });
+
+            // Smooth Scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) { window.scrollTo({ top: targetElement.offsetTop - 80, behavior: 'smooth' }); }
+                });
+            });
+
+            // Mobile Menu
+            const openMobileMenu = () => { navOverlay.style.display = 'block'; mobileNavWindow.classList.add('open'); };
+            const closeMobileMenu = () => { navOverlay.style.display = 'none'; mobileNavWindow.classList.remove('open'); };
+            mobileMenuIcon.addEventListener('click', openMobileMenu);
+            closeMobileNavBtn.addEventListener('click', closeMobileMenu);
+            navOverlay.addEventListener('click', closeMobileMenu);
+            mobileNavLinks.forEach(link => { link.addEventListener('click', closeMobileMenu); });
+
+            // Load Donors from Firebase
+            async function loadAndSortDonors() {
+                const mainDonorGrid = document.getElementById('mainDonorsGrid');
+                mainDonorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">লোড হচ্ছে...</p>';
+
+                try {
+                    // শুধুমাত্র যারা প্রোফাইল পাবলিশ করেছে তাদের লোড করা
+                    const q = window.query(window.collection(window.db, "users"), window.where("isPublished", "==", true));
+                    const querySnapshot = await window.getDocs(q);
+
+                    mainDonorGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        mainDonorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">কোনো রক্তদাতা পাওয়া যায়নি।</p>';
+                        return;
+                    }
+
+                    let donorCards = [];
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        // Location Name Formatting
+                        const divName = locationData[data.division]?.name || data.division || '';
+                        const locationText = (data.upazila && data.district) ? `${data.upazila}, ${data.district}` : (divName || 'অবস্থান অজ্ঞাত');
+                        
+                        const lastDonationDate = data.neverDonated ? 'কখনও দেননি' : (data.lastDonation ? new Date(data.lastDonation).toLocaleDateString('bn-BD') : '-');
+
+                        const card = document.createElement('div');
+                        card.className = 'donor-card';
+                        card.setAttribute('data-blood-group', data.bloodGroup);
+
+                        card.innerHTML = `
+                            <div class="donor-header">
+                                <div class="blood-group">${data.bloodGroup || '?'}</div>
+                                <span class="donor-name"><i class="fas fa-user-circle"></i> ${data.name || 'অজ্ঞাত'}</span>
+                            </div>
+                            <ul class="donor-info">
+                                <li><i class="fas fa-map-marker-alt"></i> ${locationText}</li>
+                                <li><i class="fas fa-calendar-alt"></i> শেষ রক্তদান: ${lastDonationDate}</li>
+                                <li><i class="fas fa-phone"></i> মোবাইল: <span class="phone-number">${data.mobile || ''}</span> <i class="far fa-copy copy-icon"></i></li>
+                            </ul>
+                        `;
+                        donorCards.push(card);
+                    });
+
+                    // Sort by blood group priority
+                    const bloodGroupPriority = ['AB-', 'B-', 'A-', 'O-', 'AB+', 'B+', 'A+', 'O+'];
+                    donorCards.sort((cardA, cardB) => {
+                        const bgA = cardA.getAttribute('data-blood-group');
+                        const bgB = cardB.getAttribute('data-blood-group');
+                        return bloodGroupPriority.indexOf(bgA) - bloodGroupPriority.indexOf(bgB);
+                    });
+
+                    donorCards.forEach(card => {
+                        mainDonorGrid.appendChild(card);
+                        
+                        // Copy functionality
+                        const copyIcon = card.querySelector('.copy-icon');
+                        if (copyIcon) {
+                            copyIcon.addEventListener('click', () => {
+                                const phoneNumber = card.querySelector('.phone-number').innerText; 
+                                navigator.clipboard.writeText(phoneNumber)
+                                    .then(() => { alert(`'${phoneNumber}' নম্বরটি কপি করা হয়েছে।`); })
+                                    .catch(err => { alert('নম্বরটি কপি করা যায়নি।'); });
+                            });
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("Error loading donors:", error);
+                    if(error.message.includes("indexes")) {
+                        console.log("Please create an index in Firestore console using the link in the error above.");
+                    }
+                    mainDonorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">ডাটা লোড করতে সমস্যা হয়েছে।</p>';
+                }
+            }
+
+            // Link search trigger
+            const searchSectionTrigger = document.getElementById('searchSectionTrigger');
+            if(searchSectionTrigger) {
+                searchSectionTrigger.addEventListener('click', () => {
+                    window.location.href = 'search_bar.html';
+                });
+            }
+
+            loadAndSortDonors(); 
         });
     </script>
 </body>
