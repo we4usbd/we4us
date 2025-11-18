@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রক্তদানের নিয়মাবলী - আমাদের জন্য আমরা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- General/Shared Styles --- */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--text);
+        }
+        
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .logo i { font-size: 1.8rem; }
+        
+        nav ul { display: flex; list-style: none; gap: 25px; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: var(--transition); position: relative; }
+        nav a:hover { color: var(--primary); }
+        nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
+        nav a:hover::after { width: 100%; }
+
+        footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
+        .footer-column h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 2px; background: var(--primary); }
+        .footer-links { list-style: none; } .footer-links li { margin-bottom: 10px; } .footer-links a { color: #ddd; text-decoration: none; transition: var(--transition); }
+        .footer-links a:hover { color: var(--primary); padding-left: 5px; }
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
+        .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
+        .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
+
+        /* --- Styles for the Rules Page (rulesView) --- */
+        .rules-section {
+            padding: 80px 0;
+        }
+        #rulesView .container {
+             max-width: 1000px;
+        }
+        #rulesView .rules-container {
+            display: flex;
+            flex-direction: column;
+            gap: 80px; /* Space between each rule item */
+        }
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .rule-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .rule-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        .rule-image {
+            flex-shrink: 0;
+            width: 300px;
+            height: 220px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background-color: #f0f4f8; /* A light background for images */
+        }
+        .rule-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Changed to cover to fill the container properly */
+            transition: transform 0.4s ease;
+        }
+        .rule-item:hover .rule-image img {
+            transform: scale(1.08); /* Slightly more zoom for cartoons */
+        }
+        .rule-text h3 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rule-text p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+        .rule-text strong {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .nav-link-active { 
+            color: var(--primary); 
+            font-weight: 700; 
+        }
+        .nav-link-active::after { 
+            width: 100%; 
+        }
+
+        /* --- Animations --- */
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- Responsive Styles --- */
+        @media (max-width: 768px) { 
+            .rule-item, .rule-item:nth-child(even) { flex-direction: column; padding: 25px; gap: 25px; }
+            .rule-image { width: 100%; height: 200px; }
+            .rule-text h3 { font-size: 1.5rem; }
+            .rule-text p { font-size: 1rem; }
+            .header-content nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Rules Page Content (Rules View) -->
+    <div id="rulesView">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <a href="index.html" class="logo"> <i class="fas fa-tint"></i> <span>আমাদের জন্য আমরা</span> </a>
+                    <nav>
+                        <ul>
+                             <li><a href="index.html">হোম</a></li>
+                             <li><a href="#" class="nav-link-active">রক্তদানের নিয়ম</a></li>
+                             <li><a href="#">জরুরি যোগাযোগ</a></li>
+                        </ul>
+                    </nav>
+                    <a href="index.html" class="btn btn-primary">হোম</a>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="rules-section">
+                <div class="container">
+                    <h2 class="section-title">রক্তদানের পূর্ববর্তী ও পরবর্তী নিয়মাবলী</h2>
+
+                    <div class="rules-container">
+                        
+                        <!-- Rule 1 -->
+                        <div class="rule-item">
+                            <div class="rule-image">
+                                <img src="https://cdni.iconscout.com/illustration/premium/thumb/blood-donor-5629903-4695029.png" alt="সাধারণ যোগ্যতা কার্টুন">
+                            </div>
+                            <div class="rule-text">
+                                <h3><i class="fas fa-heartbeat"></i>সাধারণ যোগ্যতা</h3>
+                                <p>রক্তদাতার বয়স <strong>১৮ থেকে ৬০ বছরের মধ্যে</strong> হতে হবে। পুরুষের সর্বনিম্ন ওজন <strong>৫০ কেজি</strong> এবং নারীদের ক্ষেত্রে সর্বনিম্ন ওজন <strong>৪৫ কেজি</strong> হতে হবে। রক্তদানের সময় <strong>রক্তচাপ ও শরীরের তাপমাত্রা স্বাভাবিক</strong> থাকতে হবে।</p>
+                            </div>
+                        </div>
+
+                        <!-- Rule 2 -->
+                        <div class="rule-item">
+                            <div class="rule-image">
+                                <img src="https://i.ibb.co/KxmcVnbK/person-enjoys-vibrant-meal-surrounded-by-variety-fresh-fruits-vegetables-ready-dive-into-healthy-lif.jpg" alt="স্বাস্থ্যকর খাবার কার্টুন">
+                            </div>
+                            <div class="rule-text">
+                                <h3><i class="fas fa-utensils"></i> রক্তদানের পূর্বে</h3>
+                                <p>রক্তদানের আগে <strong>স্বাস্থ্যকর ও হালকা খাবার</strong> গ্রহণ করুন, বিশেষ করে আয়রন সমৃদ্ধ খাবার। <strong>পর্যাপ্ত পরিমাণে পানি ও তরল</strong> পান করুন। রক্তদানের অন্তত <strong>৬ ঘণ্টা আগে ধূমপান ও অ্যালকোহল গ্রহণ থেকে বিরত</strong> থাকুন।</p>
+                            </div>
+                        </div>
+
+                        <!-- Rule 3 -->
+                        <div class="rule-item">
+                            <div class="rule-image">
+                                <img src="https://i.ibb.co/vxbvjfZZ/Screenshot-2025-11-07-18-34-51-547-com-android-chrome-edit.jpg" alt="পর্যাপ্ত ঘুম কার্টুন">
+                            </div>
+                            <div class="rule-text">
+                                <h3><i class="fas fa-bed"></i> পর্যাপ্ত বিশ্রাম</h3>
+                                <p>রক্তদানের আগের রাতে <strong>কমপক্ষে ৬-৮ ঘণ্টা ঘুমানো</strong> অত্যন্ত জরুরি। পর্যাপ্ত বিশ্রাম শরীরকে রক্তদানের জন্য প্রস্তুত করে এবং রক্তদানের পরে ক্লান্তি বা দুর্বলতা অনুভব করার সম্ভাবনা কমিয়ে দেয়।</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Rule 4 -->
+                        <div class="rule-item">
+                            <div class="rule-image">
+                                <img src="https://i.ibb.co/Xxn2G1bx/Screenshot-2025-11-07-18-37-41-097-com-android-chrome-edit.jpg" alt="অসুস্থতা কার্টুন">
+                            </div>
+                            <div class="rule-text">
+                                <h3><i class="fas fa-notes-medical"></i> শারীরিক অসুস্থতা</h3>
+                                <p><strong>জ্বর, সর্দি-কাশি বা অন্য কোনো সংক্রমণে আক্রান্ত</strong> অবস্থায় রক্তদান করা যাবে না। এছাড়াও, <strong>অ্যান্টিবায়োটিক গ্রহণ করলে</strong>, বড় কোনো সার্জারি হলে, বা গত এক বছরের মধ্যে জন্ডিস হলে রক্তদান থেকে বিরত থাকতে হবে।</p>
+                            </div>
+                        </div>
+
+                        <!-- Rule 5 -->
+                        <div class="rule-item">
+                            <div class="rule-image">
+                                <img src="https://cdni.iconscout.com/illustration/premium/thumb/man-relaxing-on-the-chair-and-reading-a-book-3488421-2922434.png" alt="রক্তদানের পর বিশ্রাম কার্টুন">
+                            </div>
+                            <div class="rule-text">
+                                <h3><i class="fas fa-chair"></i> রক্তদানের পরে</h3>
+                                <p>রক্তদানের পর <strong>১০-১৫ মিনিট বিশ্রাম</strong> নিন। <strong>প্রচুর পরিমাণে পানি ও জুস</strong> পান করুন। अगले <strong>২৪ ঘণ্টা পর্যন্ত ভারী ব্যায়াম বা কঠোর শারীরিক পরিশ্রম</strong> থেকে বিরত থাকুন। মাথা ঘোরালে বা অসুস্থ বোধ করলে শুয়ে পড়ুন।</p>
+                            </div>
+                        </div>
+
+                        <!-- Rule 6 -->
+                        <div class="rule-item">
+                            <div class="rule-image">
+                                <img src="https://i.ibb.co/FL0kpmxx/blood-donation-2d-isolated-illustration-man-in-chair-on-blood-transfusion-donor-with-smiling-nurse-f.jpg" alt="পরবর্তী রক্তদান কার্টুন">
+                            </div>
+                            <div class="rule-text">
+                                <h3><i class="fas fa-calendar-alt"></i> পরবর্তী রক্তদানের সময়</h3>
+                                <p>একজন সুস্থ পুরুষ প্রতি <strong>৩ মাস পর পর</strong> এবং একজন সুস্থ নারী প্রতি <strong>৪ মাস পর পর</strong> রক্তদান করতে পারেন। নিয়মিত রক্তদান শরীরকে সুস্থ রাখতে সাহায্য করে এবং অন্যের জীবন বাঁচাতে গুরুত্বপূর্ণ ভূমিকা রাখে।</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column"><h3>আমাদের জন্য আমরা</h3><p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p><div class="social-links"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a></div></div>
+                    <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li><li><a href="#">জরুরি যোগাযোগ</a></li><li><a href="#">ইমারজেন্সি ব্লাড</a></li></ul></div>
+                    <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="#">জরুরী যোগাযোগ</a></li><li><a href="#">রক্তদানের নিয়ম</a></li></ul></div>
+                    <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> ঢাকা, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1XXX-XXXXXX</li><li><i class="fas fa-envelope"></i> info@bloodlink.com</li></ul></div>
+                </div>
+                <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Trigger animation for rule items when they scroll into view
+            const ruleItems = document.querySelectorAll('.rule-item');
+            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.2 };
+            
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            ruleItems.forEach(item => {
+                observer.observe(item);
+            });
+        });
+    </script>
+</body>
+</html>
