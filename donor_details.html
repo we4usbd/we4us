@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>আমাদের জন্য আমরা - রক্তদান প্ল্যাটফর্ম</title>
+    <title>রক্তদাতার বিবরণ - আমাদের জন্য আমরা</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase SDK -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-      import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
@@ -23,22 +23,29 @@
       };
 
       const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
       const db = getFirestore(app);
-      window.auth = auth;
+      const auth = getAuth(app);
+
       window.db = db;
-      window.collection = collection;
-      window.getDocs = getDocs;
-      window.query = query;
-      window.where = where;
+      window.doc = doc;
+      window.getDoc = getDoc;
+      window.auth = auth;
       window.onAuthStateChanged = onAuthStateChanged;
     </script>
 
-    <!-- Styles (Same as before) -->
     <style>
-        :root { --primary: #e53935; --primary-dark: #c62828; --secondary: #f5f5f5; --text: #333; --white: #fff; --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); --transition: all 0.3s ease; }
+        /* --- General/Shared Styles (Consistent with index.html) --- */
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        html { scroll-behavior: smooth; }
         body { background-color: var(--secondary); color: var(--text); line-height: 1.6; }
         .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -46,270 +53,203 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary); color: var(--white); }
-        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 40px; color: var(--text); }
-        #homeView header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; animation: slideDown 0.5s ease; }
+        
+        /* Header & Nav */
+        header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
         .header-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
         .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none; }
         .logo i { font-size: 1.8rem; }
         nav ul { display: flex; list-style: none; gap: 25px; }
         nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: var(--transition); position: relative; }
         nav a:hover { color: var(--primary); }
-        nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
-        nav a:hover::after { width: 100%; }
-        .auth-buttons { display: flex; gap: 15px; }
-        .header-actions-right { display: flex; align-items: center; gap: 15px; }
-        .profile-icon { font-size: 2rem; color: var(--primary); text-decoration: none; transition: var(--transition); }
-        .profile-icon:hover { color: var(--primary-dark); }
-        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; }
-        .hero { background: linear-gradient(135deg, rgba(229, 57, 53, 0.9), rgba(198, 40, 40, 0.9)), url('https://images.unsplash.com/photo-1579154204601-01588f351e67?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'); background-size: cover; background-position: center; color: var(--white); padding: 100px 0; text-align: center; animation: fadeIn 1s ease; }
-        .hero-content { max-width: 800px; margin: 0 auto; }
-        .hero h1 { font-size: 3rem; margin-bottom: 20px; animation: slideUp 0.8s ease; }
-        .hero p { font-size: 1.2rem; margin-bottom: 30px; animation: slideUp 1s ease; }
-        .hero-buttons { display: flex; justify-content: center; gap: 20px; animation: slideUp 1.2s ease; }
-        .search-section-trigger { background-color: var(--white); padding: 40px 0; margin-top: -50px; border-radius: 15px; box-shadow: var(--shadow); position: relative; z-index: 10; animation: slideUp 0.8s ease; cursor: pointer; }
-        .search-container-trigger { max-width: 800px; margin: 0 auto; padding: 0 20px; }
-        .search-box-trigger { display: flex; background: var(--white); border-radius: 50px; overflow: hidden; box-shadow: var(--shadow); }
-        .search-input-trigger { flex: 1; padding: 15px 25px; border: none; outline: none; font-size: 1rem; pointer-events: none; }
-        .search-btn-trigger { background: var(--primary); color: var(--white); border: none; padding: 0 30px; transition: var(--transition); pointer-events: none; }
-        .search-btn-trigger i { font-size: 1.1rem; }
-        .donor-list-section { padding: 60px 0; }
-        .donors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .donor-card { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); padding: 25px; transition: var(--transition); display: flex; flex-direction: column; }
-        .donor-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-        .donor-card .donor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .donor-card .blood-group { background: var(--primary); color: var(--white); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
-        .donor-card .donor-name { font-size: 1.3rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
-        .donor-card .donor-info { list-style: none; flex-grow: 1; }
-        .donor-card .donor-info li { margin-bottom: 12px; color: var(--text-light); display: flex; align-items: center; gap: 10px; }
-        .donor-card .donor-info i { color: var(--primary); width: 20px; text-align: center; }
-        .copy-icon { margin-left: auto; cursor: pointer; color: var(--text-light); transition: var(--transition); }
-        .copy-icon:hover { color: var(--primary); }
+        
+        /* Detail Page Specific Styles */
+        .details-section { padding: 60px 0; min-height: 80vh; display: flex; align-items: center; }
+        .details-container { background: var(--white); border-radius: 20px; box-shadow: var(--shadow); padding: 40px; width: 100%; max-width: 800px; margin: 0 auto; position: relative; overflow: hidden; }
+        .details-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); }
+        
+        .profile-header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 30px; }
+        .avatar-placeholder { width: 100px; height: 100px; background: #ffebee; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 20px; }
+        .donor-name-large { font-size: 2.2rem; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+        .donor-location-large { font-size: 1.1rem; color: var(--text-light); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+        .info-item { background: #f9f9f9; padding: 20px; border-radius: 12px; border-left: 4px solid var(--primary); transition: var(--transition); }
+        .info-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .info-label { font-size: 0.9rem; color: var(--text-light); display: block; margin-bottom: 5px; }
+        .info-value { font-size: 1.2rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 10px; }
+        .blood-badge { background: var(--primary); color: var(--white); padding: 2px 10px; border-radius: 15px; font-size: 1rem; }
+        
+        .action-buttons { margin-top: 40px; text-align: center; display: flex; justify-content: center; gap: 20px; }
+        .copy-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 1rem; }
+        .loading-text { text-align: center; font-size: 1.2rem; color: var(--text-light); padding: 50px; }
+        .error-text { text-align: center; font-size: 1.2rem; color: var(--primary); padding: 50px; }
+
+        /* Footer */
         footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; }
-        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
-        .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
-        .footer-column h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 2px; background: var(--primary); }
-        .footer-links { list-style: none; } .footer-links li { margin-bottom: 10px; } .footer-links a { color: #ddd; text-decoration: none; transition: var(--transition); }
-        .footer-links a:hover { color: var(--primary); padding-left: 5px; }
-        .social-links { display: flex; gap: 15px; margin-top: 20px; }
-        .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
-        .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
         .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
-        .nav-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1100; }
-        .mobile-nav-window { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%); display: flex; align-items: center; gap: 5px; background: rgba(110, 100, 100, 0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.18); padding: 10px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 1200; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .mobile-nav-window.open { transform: translateX(-50%) translateY(0); }
-        .mobile-nav-window ul { list-style: none; display: flex; flex-direction: row; gap: 8px; margin: 0; padding: 0; }
-        .mobile-nav-window a { display: block; background: var(--white); color: var(--text); padding: 8px 16px; border-radius: 30px; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap; transition: var(--transition); }
-        .mobile-nav-window a:hover { background-color: #f0f0f0; transform: translateY(-1px); }
-        .close-mobile-nav { cursor: pointer; color: #f0f0f0; font-size: 1.8rem; font-weight: 400; line-height: 1; padding: 0 8px; font-family: Arial, sans-serif; transition: color 0.3s ease; }
-        .close-mobile-nav:hover { color: var(--white); }
-        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes cardFadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        @media (max-width: 992px) { .donors-grid { grid-template-columns: repeat(2, 1fr); } .hero h1 { font-size: 2.5rem; } nav { display: none; } .mobile-menu { display: block; } .auth-buttons .btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 20px; white-space: nowrap; } .header-actions-right { gap: 10px; } .logo span { font-size: 1.1rem; } }
-        @media (max-width: 768px) { .donors-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } .hero p { font-size: 1rem; } .hero-buttons { flex-direction: column; align-items: center; } .search-box-trigger { flex-direction: column; border-radius: 15px; } .search-input-trigger { border-radius: 15px 15px 0 0; } .search-btn-trigger { border-radius: 0 0 15px 15px; padding: 15px; } }
-        @media (max-width: 400px) { .logo span { display: none; } .logo i { font-size: 1.5rem; } }
+
+        @media (max-width: 768px) {
+            .details-container { padding: 25px; }
+            .donor-name-large { font-size: 1.8rem; }
+            .info-grid { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; }
+            .header-content nav { display: none; } /* Simple mobile view handling */
+        }
     </style>
 </head>
 <body>
 
-    <div id="homeView">
-        <header>
-            <div class="container">
-                <div class="header-content">
-                    <a href="index.html" class="logo"> <i class="fas fa-tint"></i> <span>আমাদের জন্য আমরা</span> </a>
-                    <nav>
-                        <ul>
-                            <li><a href="#home">হোম</a></li>
-                            <li><a href="#donors">রক্তদাতা</a></li>
-                            <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li>
-                            <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
-                        </ul>
-                    </nav>
-                    <div class="header-actions-right">
-                        <div class="auth-buttons">
-                            <a href="log_in.html" class="btn btn-primary">লগ ইন</a>
-                        </div>
-                        <div class="mobile-menu"> <i class="fas fa-bars"></i> </div>
-                    </div>
-                </div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo"> <i class="fas fa-tint"></i> <span>আমাদের জন্য আমরা</span> </a>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">হোম</a></li>
+                        <li><a href="index.html#donors">রক্তদাতা</a></li>
+                        <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li>
+                        <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
+                    </ul>
+                </nav>
+                <a href="index.html" class="btn btn-primary">ব্যাক</a>
             </div>
-        </header>
-
-        <div class="nav-overlay" id="navOverlay"></div>
-        <div class="mobile-nav-window" id="mobileNavWindow">
-            <ul>
-                <li><a href="#home">হোম</a></li> 
-                <li><a href="#donors">রক্তদাতা</a></li> 
-                <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li> 
-                <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
-            </ul>
-            <div class="close-mobile-nav" id="closeMobileNav">&times;</div>
         </div>
+    </header>
 
-        <section class="hero" id="home">
+    <main>
+        <section class="details-section">
             <div class="container">
-                <div class="hero-content">
-                    <h1>জীবন বাঁচাতে রক্ত দিন</h1>
-                    <p><b>amader-jonno-amra.com</b> -এ যোগ দিন এবং জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করুন। আপনার একটি রক্তদান একটি জীবন বাঁচাতে পারে।</p>
-                    <div class="hero-buttons">
-                        <a href="search_bar.html" class="btn btn-primary" id="findBloodBtn">রক্ত খুঁজুন</a>
-                        <a href="emergency_contract.html" class="btn btn-outline" style="background: rgba(255,255,255,0.2); color: white; border-color: white;">জরুরি যোগাযোগ</a>
-                    </div>
+                <div id="donorDetailsContainer" class="details-container">
+                    <div class="loading-text">তথ্য লোড হচ্ছে...</div>
                 </div>
             </div>
         </section>
+    </main>
 
-        <section class="search-section-trigger" id="searchSectionTrigger">
-            <div class="search-container-trigger">
-                <div class="search-box-trigger">
-                    <input type="text" class="search-input-trigger" placeholder="রক্তের গ্রুপ, অবস্থান বা শহর লিখুন...">
-                    <button class="search-btn-trigger"><i class="fas fa-search"></i> খুঁজুন</button>
-                </div>
-            </div>
-        </section>
+    <footer>
+        <div class="container">
+            <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
+        </div>
+    </footer>
 
-        <main>
-            <section class="donor-list-section" id="donors">
-                <div class="container">
-                    <h2 class="section-title">রক্তদাতাদের তালিকা</h2>
-                    <div class="donors-grid" id="mainDonorsGrid">
-                        <p style="grid-column: 1/-1; text-align: center;">লোড হচ্ছে...</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-column"><h3>আমাদের জন্য আমরা</h3><p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p><div class="social-links"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a></div></div>
-                    <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="#home">হোম</a></li><li><a href="#donors">রক্তদাতা</a></li><li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li><li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li></ul></div>
-                    <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="donation_rules.html">রক্তদানের নিয়ম</a></li></ul></div>
-                    <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> ঢাকা, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1XXX-XXXXXX</li><li><i class="fas fa-envelope"></i> info@bloodlink.com</li></ul></div>
-                </div>
-                <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
-            </div>
-        </footer>
-    </div>
-    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuIcon = document.querySelector('.mobile-menu');
-            const mobileNavWindow = document.getElementById('mobileNavWindow');
-            const closeMobileNavBtn = document.getElementById('closeMobileNav');
-            const navOverlay = document.getElementById('navOverlay');
-            const authButtonsContainer = document.querySelector('.auth-buttons');
-
+            // Location Data for Bengali translation
             const locationData = { "barishal": { "name": "বরিশাল" }, "chattogram": { "name": "চট্টগ্রাম" }, "dhaka": { "name": "ঢাকা" }, "khulna": { "name": "খুলনা" }, "mymensingh": { "name": "ময়মনসিংহ" }, "rajshahi": { "name": "রাজশাহী" }, "rangpur": { "name": "রংপুর" }, "sylhet": { "name": "সিলেট" } };
 
-            window.onAuthStateChanged(window.auth, (user) => {
-                if (user) {
-                    authButtonsContainer.innerHTML = `<a href="profile.html" class="profile-icon" title="প্রোফাইল"><i class="fas fa-user-circle"></i></a>`;
-                    authButtonsContainer.classList.add('logged-in');
-                } else {
-                    authButtonsContainer.innerHTML = `<a href="log_in.html" class="btn btn-primary">লগ ইন</a>`;
-                    authButtonsContainer.classList.remove('logged-in');
-                }
-            });
+            // 1. Get ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const donorId = urlParams.get('id');
+            const container = document.getElementById('donorDetailsContainer');
 
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) { window.scrollTo({ top: targetElement.offsetTop - 80, behavior: 'smooth' }); }
-                });
-            });
+            // Helper: Calculate Age
+            function calculateAge(birthDateValue) {
+                if (!birthDateValue) return 'অজানা';
+                const birthDate = new Date(birthDateValue);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) { age--; }
+                return age;
+            }
 
-            const openMobileMenu = () => { navOverlay.style.display = 'block'; mobileNavWindow.classList.add('open'); };
-            const closeMobileMenu = () => { navOverlay.style.display = 'none'; mobileNavWindow.classList.remove('open'); };
-            mobileMenuIcon.addEventListener('click', openMobileMenu);
-            closeMobileNavBtn.addEventListener('click', closeMobileMenu);
-            navOverlay.addEventListener('click', closeMobileMenu);
+            // Helper: Translate Gender
+            function translateGender(gender) {
+                if(gender === 'male') return 'পুরুষ';
+                if(gender === 'female') return 'মহিলা';
+                return 'অন্যান্য';
+            }
 
-            async function loadAndSortDonors() {
-                const mainDonorGrid = document.getElementById('mainDonorsGrid');
-                mainDonorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">লোড হচ্ছে...</p>';
+            // 2. Fetch Data
+            if (!donorId) {
+                container.innerHTML = '<div class="error-text">কোনো দাতার আইডি পাওয়া যায়নি। দয়া করে তালিকা থেকে আবার চেষ্টা করুন।</div>';
+            } else {
+                fetchDonorDetails(donorId);
+            }
 
+            async function fetchDonorDetails(id) {
                 try {
-                    const q = window.query(window.collection(window.db, "users"), window.where("isPublished", "==", true));
-                    const querySnapshot = await window.getDocs(q);
+                    const docRef = window.doc(window.db, "users", id);
+                    const docSnap = await window.getDoc(docRef);
 
-                    mainDonorGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        mainDonorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">কোনো রক্তদাতা পাওয়া যায়নি।</p>';
-                        return;
+                    if (docSnap.exists()) {
+                        renderDonorProfile(docSnap.data());
+                    } else {
+                        container.innerHTML = '<div class="error-text">দুঃখিত, এই রক্তদাতার তথ্য পাওয়া যায়নি বা মুছে ফেলা হয়েছে।</div>';
                     }
-
-                    let donorCards = [];
-
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const docId = doc.id;
-                        const divName = locationData[data.division]?.name || data.division || '';
-                        const locationText = (data.upazila && data.district) ? `${data.upazila}, ${data.district}` : (divName || 'অবস্থান অজ্ঞাত');
-                        const lastDonationDate = data.neverDonated ? 'কখনও দেননি' : (data.lastDonation ? new Date(data.lastDonation).toLocaleDateString('bn-BD') : '-');
-
-                        const card = document.createElement('div');
-                        card.className = 'donor-card';
-                        card.setAttribute('data-blood-group', data.bloodGroup);
-
-                        card.innerHTML = `
-                            <div class="donor-header">
-                                <div class="blood-group">${data.bloodGroup || '?'}</div>
-                                <span class="donor-name"><i class="fas fa-user-circle"></i> ${data.name || 'অজ্ঞাত'}</span>
-                            </div>
-                            <ul class="donor-info">
-                                <li><i class="fas fa-map-marker-alt"></i> ${locationText}</li>
-                                <li><i class="fas fa-calendar-alt"></i> শেষ রক্তদান: ${lastDonationDate}</li>
-                                <li><i class="fas fa-phone"></i> মোবাইল: <span class="phone-number">${data.mobile || ''}</span> <i class="far fa-copy copy-icon"></i></li>
-                            </ul>
-                            <a href="donor_details.html?id=${docId}" class="btn btn-outline" style="width: 100%; margin-top: 10px;">ডিটেলস</a>
-                        `;
-                        donorCards.push(card);
-                    });
-
-                    const bloodGroupPriority = ['AB-', 'B-', 'A-', 'O-', 'AB+', 'B+', 'A+', 'O+'];
-                    donorCards.sort((cardA, cardB) => {
-                        const bgA = cardA.getAttribute('data-blood-group');
-                        const bgB = cardB.getAttribute('data-blood-group');
-                        return bloodGroupPriority.indexOf(bgA) - bloodGroupPriority.indexOf(bgB);
-                    });
-
-                    donorCards.forEach(card => {
-                        mainDonorGrid.appendChild(card);
-                        const copyIcon = card.querySelector('.copy-icon');
-                        if (copyIcon) {
-                            copyIcon.addEventListener('click', () => {
-                                const phoneNumber = card.querySelector('.phone-number').innerText; 
-                                navigator.clipboard.writeText(phoneNumber)
-                                    .then(() => { alert(`'${phoneNumber}' নম্বরটি কপি করা হয়েছে।`); })
-                                    .catch(err => { alert('নম্বরটি কপি করা যায়নি।'); });
-                            });
-                        }
-                    });
-
                 } catch (error) {
-                    console.error("Error loading donors:", error);
-                    if(error.message.includes("indexes")) {
-                        console.log("Please create an index in Firestore console using the link in the error above.");
-                    }
-                    mainDonorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">ডাটা লোড করতে সমস্যা হয়েছে।</p>';
+                    console.error("Error fetching document:", error);
+                    container.innerHTML = '<div class="error-text">ডাটা লোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।</div>';
                 }
             }
 
-            const searchSectionTrigger = document.getElementById('searchSectionTrigger');
-            if(searchSectionTrigger) {
-                searchSectionTrigger.addEventListener('click', () => {
-                    window.location.href = 'search_bar.html';
-                });
+            function renderDonorProfile(data) {
+                // Privacy Check (Optional: Usually details page shows what's public)
+                if (data.isPublished === false) {
+                    container.innerHTML = '<div class="error-text">এই রক্তদাতার প্রোফাইলটি বর্তমানে প্রাইভেট করা আছে।</div>';
+                    return;
+                }
+
+                const age = calculateAge(data.birthDate);
+                const divName = locationData[data.division]?.name || data.division || '';
+                const locationFull = `${data.upazila || ''}, ${data.district || ''}, ${divName}`;
+                const lastDonation = data.neverDonated ? 'কখনও রক্ত দেননি' : (data.lastDonation ? new Date(data.lastDonation).toLocaleDateString('bn-BD') : 'তথ্য নেই');
+                
+                const html = `
+                    <div class="profile-header">
+                        <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
+                        <h1 class="donor-name-large">${data.name}</h1>
+                        <div class="donor-location-large"><i class="fas fa-map-marker-alt"></i> ${locationFull}</div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">রক্তের গ্রুপ</span>
+                            <div class="info-value"><span class="blood-badge">${data.bloodGroup}</span></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">মোবাইল নম্বর</span>
+                            <div class="info-value">
+                                <span id="phoneDisplay">${data.mobile}</span>
+                                <button class="copy-btn" onclick="copyPhone('${data.mobile}')" title="কপি করুন"><i class="far fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">শেষ রক্তদান</span>
+                            <div class="info-value"><i class="fas fa-calendar-check" style="color: var(--primary); font-size: 1rem;"></i> ${lastDonation}</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">বয়স</span>
+                            <div class="info-value">${age} বছর</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">জেন্ডার</span>
+                            <div class="info-value">${translateGender(data.gender)}</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">ওজন</span>
+                            <div class="info-value">${data.weight || '-'} কেজি</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="tel:${data.mobile}" class="btn btn-primary" style="min-width: 200px;">
+                            <i class="fas fa-phone-alt"></i> কল করুন
+                        </a>
+                    </div>
+                `;
+                container.innerHTML = html;
             }
 
-            loadAndSortDonors(); 
+            // Copy Function attached to window for HTML access
+            window.copyPhone = (number) => {
+                navigator.clipboard.writeText(number).then(() => {
+                    alert('নম্বরটি কপি করা হয়েছে: ' + number);
+                }).catch(err => {
+                    alert('কপি করতে ব্যর্থ হয়েছে।');
+                });
+            };
         });
     </script>
 </body>
