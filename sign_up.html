@@ -6,11 +6,11 @@
     <title>সাইন আপ - আমাদের জন্য আমরা</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <!-- Firebase SDK এবং কনফিগারেশন -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-      import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyDu8VDVXEbrLbqPmD24OPgNhbH5xjwi_vA",
@@ -36,7 +36,7 @@
     </script>
 
     <style>
-        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        /* CSS Styles (Consistent with log_in.html) */
         :root {
             --primary: #e53935;
             --primary-dark: #c62828;
@@ -78,14 +78,18 @@
 </head>
 <body>
     <div class="form-container">
-        <!-- home link changed to index.html for standard routing -->
+        <!-- হোম পেজে ফিরে যাওয়ার লিংক -->
         <a href="index.html" class="home-link" title="হোম পেজে ফিরে যান"><i class="fas fa-arrow-left"></i></a>
         <h2>সাইন আপ</h2>
+        
+        <!-- সোশ্যাল লগইন বাটন (ডিজাইন মাত্র) -->
         <div class="social-login">
             <button class="social-btn google-btn"><i class="fab fa-google"></i> Google</button>
             <button class="social-btn facebook-btn"><i class="fab fa-facebook-f"></i> Facebook</button>
         </div>
+        
         <div class="divider">or</div>
+        
         <form id="signupForm">
             <div class="form-group"><label for="signupName">পুরো নাম</label><input type="text" id="signupName" class="form-control" placeholder="আপনার পুরো নাম দিন" required></div>
             <div class="form-group"><label for="signupEmail">ইমেইল</label><input type="email" id="signupEmail" class="form-control" placeholder="আপনার ইমেইল দিন" required></div>
