@@ -6,7 +6,7 @@
     <title>প্রোফাইল - আমাদের জন্য আমরা</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK এবং কনফিগারেশন (Common Setup) -->
+    <!-- Firebase SDK এবং কনফিগারেশন -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -41,7 +41,7 @@
     </script>
 
     <style>
-        /* CSS অপরিবর্তিত রাখা হয়েছে */
+        /* CSS Styles */
         :root {
             --primary: #e53935;
             --primary-dark: #c62828;
@@ -65,6 +65,8 @@
         .notification.show { transform: translate(-50%, 20px); }
         .notification.success { background-color: #4CAF50; }
         .notification.private { background-color: var(--primary); }
+        
+        /* Header */
         header { background-color: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
         .header-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
         .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700; font-size: 1.5rem; text-decoration: none; }
@@ -74,6 +76,8 @@
         nav a:hover { color: var(--primary); }
         nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background-color: var(--primary); transition: var(--transition); }
         nav a:hover::after { width: 100%; }
+        
+        /* Buttons & Menu */
         .auth-buttons { display: flex; gap: 15px; }
         .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; }
         .page-section { transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; opacity: 0; }
@@ -81,6 +85,8 @@
         .page-section.visible { opacity: 1; transform: scale(1) translateY(0); }
         .header-button-group { opacity: 0; transition: opacity 0.3s ease-in-out; }
         .header-button-group.visible { opacity: 1; }
+        
+        /* Profile View */
         .profile-view-section { padding: 60px 0; }
         .profile-view-container { background-color: var(--white); border-radius: 15px; box-shadow: var(--shadow); padding: 40px; max-width: 800px; margin: 0 auto; position: relative; overflow: hidden; }
         .profile-view-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); }
@@ -99,6 +105,8 @@
         .blood-group-badge { display: inline-block; background-color: var(--primary); color: var(--white); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 700; }
         .willing-status.yes { color: #4CAF50; font-weight: 700; }
         .willing-status.no { color: #f44336; font-weight: 700; }
+        
+        /* My Posts Section */
         .my-posts-section { padding: 0 0 60px 0; }
         .my-posts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 800px; margin: 0 auto; }
         .my-post-card { background-color: var(--white); border-radius: 15px; box-shadow: var(--shadow); border-top: 5px solid var(--primary); display: flex; flex-direction: column; }
@@ -109,18 +117,20 @@
         .my-post-card-footer { padding: 0 20px 20px; }
         .btn-cancel { background: #ffcdd2; color: var(--primary-dark); width: 100%; }
         .btn-cancel:hover { background: var(--primary); color: var(--white); }
+        
+        /* Footer */
         footer { background: #2c3e50; color: var(--white); padding: 60px 0 20px; }
         .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
         .footer-column h3 { font-size: 1.3rem; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
         .footer-column h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 2px; background: var(--primary); }
-        .footer-links { list-style: none; padding: 0; }
-        .footer-links li { margin-bottom: 10px; }
-        .footer-links a { color: #ddd; text-decoration: none; transition: var(--transition); }
+        .footer-links { list-style: none; } .footer-links li { margin-bottom: 10px; } .footer-links a { color: #ddd; text-decoration: none; transition: var(--transition); }
         .footer-links a:hover { color: var(--primary); padding-left: 5px; }
         .social-links { display: flex; gap: 15px; margin-top: 20px; }
         .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; color: var(--white); transition: var(--transition); }
         .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
         .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: #aaa; }
+        
+        /* Mobile Menu */
         .nav-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1100; }
         .mobile-nav-window { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%); display: flex; align-items: center; gap: 5px; background: rgba(110, 100, 100, 0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.18); padding: 10px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 1200; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .mobile-nav-window.open { transform: translateX(-50%) translateY(0); }
@@ -129,8 +139,18 @@
         .mobile-nav-window a:hover { background-color: #f0f0f0; transform: translateY(-1px); }
         .close-mobile-nav { cursor: pointer; color: #f0f0f0; font-size: 1.8rem; font-weight: 400; line-height: 1; padding: 0 8px; font-family: Arial, sans-serif; transition: color 0.3s ease; }
         .close-mobile-nav:hover { color: var(--white); }
-        @media (max-width: 768px) { nav { display: none; } .mobile-menu { display: block; } .profile-body { grid-template-columns: 1fr; } .my-posts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 576px) { .header-content { flex-wrap: wrap; } .auth-buttons { margin-top: 15px; width: 100%; justify-content: center; } }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) { 
+            nav { display: none; } 
+            .mobile-menu { display: block; } 
+            .profile-body { grid-template-columns: 1fr; } 
+            .my-posts-grid { grid-template-columns: 1fr; } 
+        }
+        @media (max-width: 576px) { 
+            .header-content { flex-wrap: wrap; } 
+            .auth-buttons { margin-top: 15px; width: 100%; justify-content: center; } 
+        }
     </style>
 </head>
 <body>
@@ -139,7 +159,14 @@
         <div class="container">
             <div class="header-content">
                 <a href="index.html" class="logo"><i class="fas fa-tint"></i><span>আমাদের জন্য আমরা</span></a>
-                <nav><ul><li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li><li><a href="#">জরুরি যোগাযোগ</a></li><li><a href="#">ইমারজেন্সি ব্লাড</a></li></ul></nav>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">হোম</a></li>
+                        <li><a href="index.html#donors">রক্তদাতা</a></li>
+                        <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li>
+                        <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
+                    </ul>
+                </nav>
                 <div id="view-mode-buttons" class="auth-buttons header-button-group"> 
                     <button id="publishBtn" class="btn btn-outline" style="display: none;"><i class="fas fa-upload"></i> লোড হচ্ছে...</button>
                     <button id="editProfileBtn" class="btn btn-outline"><i class="fas fa-edit"></i> এডিট</button>
@@ -150,8 +177,17 @@
             </div>
         </div>
     </header>
+    
     <div class="nav-overlay" id="navOverlay"></div>
-    <div class="mobile-nav-window" id="mobileNavWindow"><ul><li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li><li><a href="#">জরুরি যোগাযোগ</a></li><li><a href="#">ইমারজেন্সি ব্লাড</a></li></ul><div class="close-mobile-nav" id="closeMobileNav">&times;</div></div>
+    <div class="mobile-nav-window" id="mobileNavWindow">
+        <ul>
+            <li><a href="index.html">হোম</a></li>
+            <li><a href="index.html#donors">রক্তদাতা</a></li>
+            <li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li>
+            <li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li>
+        </ul>
+        <div class="close-mobile-nav" id="closeMobileNav">&times;</div>
+    </div>
 
     <section id="profileViewSection" class="page-section profile-view-section">
         <div class="container">
@@ -186,9 +222,9 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-column"><h3>আমাদের জন্য আমরা</h3><p>জীবন বাঁচাতে রক্ত দিন। আমাদের প্ল্যাটফর্ম জরুরী অবস্থায় রক্তের প্রয়োজনীয়তা মেটাতে সাহায্য করে।</p><div class="social-links"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a></div></div>
-                <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="index.html">হোম</a></li><li><a href="#">রক্তদাতা</a></li><li><a href="#">জরুরি যোগাযোগ</a></li><li><a href="#">ইমারজেন্সি ব্লাড</a></li></ul></div>
-                <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="#">জরুরী যোগাযোগ</a></li><li><a href="#">রক্তদানের নিয়ম</a></li></ul></div>
-                <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> নাটোর, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1851956615</li><li><i class="fas fa-envelope"></i> info@nur.com</li></ul></div>
+                <div class="footer-column"><h3>লিংকস</h3><ul class="footer-links"><li><a href="index.html">হোম</a></li><li><a href="index.html#donors">রক্তদাতা</a></li><li><a href="emergency_contract.html">জরুরি যোগাযোগ</a></li><li><a href="emergency_page.html">ইমারজেন্সি ব্লাড</a></li></ul></div>
+                <div class="footer-column"><h3>সহায়তা</h3><ul class="footer-links"><li><a href="#">সাপোর্ট</a></li><li><a href="emergency_contract.html">জরুরী যোগাযোগ</a></li><li><a href="donation_rules.html">রক্তদানের নিয়ম</a></li></ul></div>
+                <div class="footer-column"><h3>যোগাযোগ</h3><ul class="footer-links"><li><i class="fas fa-map-marker-alt"></i> ঢাকা, বাংলাদেশ</li><li><i class="fas fa-phone"></i> +880 1XXX-XXXXXX</li><li><i class="fas fa-envelope"></i> info@bloodlink.com</li></ul></div>
             </div>
             <div class="copyright"><p>&copy; ২০২৫ আমাদের জন্য আমরা. সকল অধিকার সংরক্ষিত।</p></div>
         </div>
@@ -204,6 +240,8 @@
             const emergencyBtn = document.getElementById('emergencyBtn');
             const logoutBtn = document.getElementById('logoutBtn');
             const notification = document.getElementById('notification');
+            
+            // Mobile Menu Elements
             const mobileMenuIcon = document.querySelector('.mobile-menu');
             const mobileNavWindow = document.getElementById('mobileNavWindow');
             const closeMobileNavBtn = document.getElementById('closeMobileNav');
@@ -244,7 +282,7 @@
                             renderProfileView(data);
                             setupPublishButton(data.isPublished, user.uid);
                         } else {
-                            // প্রোফাইল না থাকলে এডিট পেজে পাঠানো যেতে পারে
+                            // প্রোফাইল না থাকলে এডিট পেজে পাঠানো
                             window.location.href = 'profile_edit.html';
                         }
                         
@@ -341,7 +379,7 @@
                                 <div class="my-post-card-info"><i class="fas fa-phone"></i><div><span class="info-label">যোগাযোগ:</span> ${post.contact}</div></div>
                             </div>
                             <div class="my-post-card-footer">
-                                <button class="btn btn-cancel" onclick="deletePost('${postId}')"><i class="fas fa-times"></i> ক্যানসেল করুন</button>
+                                <button class="btn btn-cancel" onclick="deletePost('${postId}')"><i class="fas fa-times"></i> ডিলিট করুন</button>
                             </div>
                         `;
                         postsGrid.appendChild(cardElement);
